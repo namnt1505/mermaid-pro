@@ -1,21 +1,20 @@
 "use client"
 
 import { useMemo } from "react"
-import { useWindowSize } from "@/hooks/use-window-size"
+import { useWindowSize } from "./use-window-size"
 
-interface PanelSizeResult {
-  leftPanelSize: number
+interface PanelSizeConfig {
   leftPanelPercentage: number
   rightPanelPercentage: number
+  leftPanelSize: number
 }
 
-export function usePanelSize(isMinimized: boolean): PanelSizeResult {
+export function usePanelSize(isMinimized: boolean): PanelSizeConfig {
   const { width: windowWidth } = useWindowSize()
 
   return useMemo(() => {
     const leftSize = isMinimized ? 70 : 350 // Fixed pixel values
-    const totalWidth = windowWidth || 1200 // Fallback width
-    const leftPercentage = (leftSize / totalWidth) * 100
+    const leftPercentage = (leftSize / windowWidth) * 100
 
     return {
       leftPanelSize: leftSize,

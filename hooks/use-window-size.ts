@@ -8,13 +8,16 @@ interface WindowSize {
 }
 
 export function useWindowSize(): WindowSize {
-  // Initialize with default values for SSR
+  // Initialize with default values for SSR - no window access during initial render
   const [windowSize, setWindowSize] = useState<WindowSize>({
-    width: typeof window !== "undefined" ? window.innerWidth : 1200,
-    height: typeof window !== "undefined" ? window.innerHeight : 800,
+    width: 1200, // Default fallback width
+    height: 800, // Default fallback height
   })
 
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === "undefined") return
+
     // Handler to call on window resize
     function handleResize() {
       setWindowSize({
@@ -23,11 +26,11 @@ export function useWindowSize(): WindowSize {
       })
     }
 
+    // Set initial window size
+    handleResize()
+
     // Add event listener
     window.addEventListener("resize", handleResize)
-
-    // Call handler right away so state gets updated with initial window size
-    handleResize()
 
     // Remove event listener on cleanup
     return () => window.removeEventListener("resize", handleResize)

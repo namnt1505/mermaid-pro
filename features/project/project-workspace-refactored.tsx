@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { useProject } from "@/context/project-context"
 import { useWorkspace } from "@/context/workspace-context"
 import { usePanelSize } from "@/hooks/use-panel-size"
@@ -10,7 +10,6 @@ import { AddDiagramDialog } from "@/features/diagram/add-diagram-dialog"
 import { WorkspacePanel } from "@/features/workspace/workspace-panel"
 import { DiagramPreviewPanel } from "@/features/diagram/diagram-preview-panel"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
-import { useState } from "react"
 
 export function ProjectWorkspaceRefactored() {
   const { currentProject } = useProject()
@@ -20,7 +19,7 @@ export function ProjectWorkspaceRefactored() {
   const [isAddDiagramOpen, setIsAddDiagramOpen] = useState(false)
   const leftPanelRef = useRef<HTMLDivElement>(null)
 
-  // Calculate panel sizes based on minimized state
+  // Calculate panel sizes based on minimized state - now SSR safe
   const { leftPanelPercentage, rightPanelPercentage } = usePanelSize(isProjectToolMinimized)
 
   // Register keyboard shortcut for toggling panel

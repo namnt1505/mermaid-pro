@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useMemo, useCallback } from "react"
+import { useState, useRef, useMemo, useCallback, useEffect } from "react"
 import { useProject } from "@/context/project-context"
 import { ProjectSelector } from "@/features/project/project-selector"
 import { AddDiagramDialog } from "@/features/diagram/add-diagram-dialog"
@@ -14,8 +14,24 @@ export function ProjectWorkspace() {
   const [isAddDiagramOpen, setIsAddDiagramOpen] = useState(false)
   const [previewKey, setPreviewKey] = useState(0)
   const [isProjectToolMinimized, setIsProjectToolMinimized] = useState(false)
+  const [windowWidth, setWindowWidth] = useState(1200) // Default fallback width
 
   const leftPanelRef = useRef<HTMLDivElement>(null)
+
+  // Handle window resize and initial width
+  useEffect(() => {
+    // Set initial window width
+    if (typeof window !== "undefined") {
+      setWindowWidth(window.innerWidth)
+
+      const handleResize = () => {
+        setWindowWidth(window.innerWidth)
+      }
+
+      window.addEventListener("resize", handleResize)
+      return () => window.removeEventListener("resize", handleResize)
+    }
+  }, [])
 
   // Get the selected diagram
   const selectedDiagram = useMemo(
@@ -47,17 +63,16 @@ export function ProjectWorkspace() {
     [refreshPreview],
   )
 
-  // Calculate panel sizes based on minimized state
+  // Calculate panel sizes based on minimized state - now SSR safe
   const { leftPanelSize, leftPanelPercentage, rightPanelPercentage } = useMemo(() => {
     const leftSize = isProjectToolMinimized ? 70 : 350 // Fixed pixel values
-    const totalWidth = typeof window !== "undefined" ? window.innerWidth : 1200 // Fallback width
-    const leftPercentage = (leftSize / totalWidth) * 100
+    const leftPercentage = (leftSize / windowWidth) * 100
     return {
       leftPanelSize: leftSize,
       leftPanelPercentage: leftPercentage,
       rightPanelPercentage: 100 - leftPercentage,
     }
-  }, [isProjectToolMinimized])
+  }, [isProjectToolMinimized, windowWidth])
 
   return (
     <div className="space-y-6 h-screen flex flex-col">
