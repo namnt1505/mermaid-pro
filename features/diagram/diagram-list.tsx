@@ -1,0 +1,135 @@
+"use client"
+
+import { useState } from "react"
+import { useProject } from "@/context/project-context"
+import type { Diagram } from "@/types"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Edit2, Trash2, MoreHorizontal } from "lucide-react"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { RenameDiagramDialog } from "@/features/diagram/rename-diagram-dialog"
+
+interface DiagramListProps {
+  diagrams: Diagram[]
+  selectedDiagramId: string | null
+  onSelectDiagram: (id: string) => void
+}
+
+export function DiagramList({ diagrams, selectedDiagramId, onSelectDiagram }: DiagramListProps) {
+  const { currentProject, deleteDiagram } = useProject()
+  const [diagramToDelete, setDiagramToDelete] = useState<string | null>(null)
+  const [diagramToRename, setDiagramToRename] = useState<Diagram | null>(null)
+
+  const handleDeleteDiagram = () => {
+    if (diagramToDelete && currentProject) {
+      deleteDiagram(currentProject.id, diagramToDelete)
+      if (selectedDiagramId === diagramToDelete && diagrams.length > 1) {
+        const remainingDiagrams = diagrams.filter((d) => d.id !== diagramToDelete)
+        if (remainingDiagrams.length > 0) {
+          onSelectDiagram(remainingDiagrams[0].id)
+        }
+      }
+      setDiagramToDelete(null)
+    }
+  }
+
+  return (
+    <div className="space-y-1">
+      {diagrams.length > 0 ? (
+        <ScrollArea className="h-[180px] pr-2">
+          <div className="space-y-1">
+            {diagrams.map((diagram) => (
+              <div
+                key={diagram.id}
+                className={`group flex items-center justify-between p-2 rounded-md cursor-pointer transition-colors text-sm ${
+                  selectedDiagramId === diagram.id ? "bg-primary/10 border border-primary/30" : "hover:bg-accent"
+                }`}
+                onClick={() => onSelectDiagram(diagram.id)}
+              >
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
+                  <span className="font-medium truncate">{diagram.name}</span>
+                </div>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <MoreHorizontal className="h-3 w-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-32">
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setDiagramToRename(diagram)
+                      }}
+                    >
+                      <Edit2 className="h-3 w-3 mr-2" />
+                      Rename
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setDiagramToDelete(diagram.id)
+                      }}
+                      className="text-destructive"
+                    >
+                      <Trash2 className="h-3 w-3 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      ) : (
+        <div className="text-center text-muted-foreground p-3 text-xs">
+          <p>No diagrams yet.</p>
+        </div>
+      )}
+
+      <AlertDialog open={!!diagramToDelete} onOpenChange={(open) => !open && setDiagramToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Diagram</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this diagram? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteDiagram}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <RenameDiagramDialog
+        open={!!diagramToRename}
+        onOpenChange={(open) => !open && setDiagramToRename(null)}
+        diagram={diagramToRename}
+        projectId={currentProject?.id || ""}
+      />
+    </div>
+  )
+}
