@@ -327,7 +327,7 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
             width: "100%",
             height: "100%",
           }}
-          className="relative w-full h-full grid-background"
+          className="relative w-full h-full"
         >
           {!diagrams || diagrams.length === 0 ? (
             <div className="flex items-center justify-center h-full">
