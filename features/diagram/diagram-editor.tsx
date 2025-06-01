@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { useProject } from "@/context/project-context"
 import type { Diagram } from "@/types"
 import type * as Monaco from "monaco-editor"
-import { Textarea } from "@/components/ui/textarea"
+import CodeEditor from "@uiw/react-textarea-code-editor"
 
 interface DiagramEditorProps {
   diagram: Diagram
@@ -87,22 +87,30 @@ export function DiagramEditor({ diagram, projectId, onCodeChange }: DiagramEdito
     }
   }, [diagram.code])
 
-  // If Monaco Editor fails to load or is not available, use a textarea as fallback
+  // If Monaco Editor fails to load or is not available, use a code editor as fallback
   if (!monacoEditorRef.current) {
     return (
       <div className="space-y-2 h-full flex flex-col">
         <h3 className="text-sm font-medium">{diagram.name}</h3>
-        <Textarea
-          value={diagram.code}
-          onChange={(e) => {
-            updateDiagram(projectId, diagram.id, { code: e.target.value })
-            if (onCodeChange) {
-              onCodeChange()
-            }
-          }}
-          className="font-mono flex-1 resize-none text-xs"
-          placeholder="Enter your Mermaid code here..."
-        />
+        <div className="flex-1 relative overflow-auto border rounded-md min-h-[200px]">
+          <CodeEditor
+            value={diagram.code}
+            language="mermaid"
+            onChange={(e) => {
+              updateDiagram(projectId, diagram.id, { code: e.target.value })
+              if (onCodeChange) {
+                onCodeChange()
+              }
+            }}
+            className="font-mono text-xs absolute inset-0 w-full h-full"
+            style={{
+              fontFamily: "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace",
+              minHeight: "100%",
+            }}
+            padding={15}
+            placeholder="Enter your Mermaid code here..."
+          />
+        </div>
       </div>
     )
   }
