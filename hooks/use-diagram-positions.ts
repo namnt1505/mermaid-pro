@@ -38,7 +38,6 @@ export function useDiagramPositions(projectId: string, diagrams: Diagram[]) {
         })
 
         setDiagramPositions(validPositions)
-        console.log("Loaded diagram positions:", validPositions)
       } catch (error) {
         console.error("Error loading diagram positions:", error)
         initializeDefaultPositions(diagrams)
@@ -49,45 +48,30 @@ export function useDiagramPositions(projectId: string, diagrams: Diagram[]) {
   }, [projectId, diagrams])
 
   // Initialize default positions
-  const initializeDefaultPositions = useCallback(
-    (diagrams: Diagram[]) => {
-      const defaultPositions: Record<string, DiagramPosition> = {}
-      diagrams.forEach((diagram, index) => {
-        defaultPositions[diagram.id] = {
-          x: 50 + (index % 3) * 350,
-          y: 50 + Math.floor(index / 3) * 300,
-        }
-      })
-      setDiagramPositions(defaultPositions)
+  const initializeDefaultPositions = useCallback((diagrams: Diagram[]) => {
+    const defaultPositions: Record<string, DiagramPosition> = {}
+    diagrams.forEach((diagram, index) => {
+      defaultPositions[diagram.id] = {
+        x: 50 + (index % 3) * 350,
+        y: 50 + Math.floor(index / 3) * 300,
+      }
+    })
+    setDiagramPositions(defaultPositions)
+  }, [])
 
-      // Save to localStorage
-      localStorage.setItem(`diagram-positions-${projectId}`, JSON.stringify(defaultPositions))
-      console.log("Initialized default positions:", defaultPositions)
-    },
-    [projectId],
-  )
+  // Save positions to localStorage
+  useEffect(() => {
+    if (Object.keys(diagramPositions).length > 0) {
+      localStorage.setItem(`diagram-positions-${projectId}`, JSON.stringify(diagramPositions))
+    }
+  }, [diagramPositions, projectId])
 
-  // Update diagram position
-  const updateDiagramPosition = useCallback(
-    (diagramId: string, position: DiagramPosition) => {
-      console.log("useDiagramPositions: Updating position for", diagramId, position)
-
-      // Update state with functional update to ensure we're working with the latest state
-      setDiagramPositions((prev) => {
-        const newPositions = {
-          ...prev,
-          [diagramId]: position,
-        }
-
-        // Save to localStorage immediately
-        localStorage.setItem(`diagram-positions-${projectId}`, JSON.stringify(newPositions))
-        console.log("Saved positions to localStorage:", newPositions)
-
-        return newPositions
-      })
-    },
-    [projectId],
-  )
+  const updateDiagramPosition = useCallback((diagramId: string, position: DiagramPosition) => {
+    setDiagramPositions((prev) => ({
+      ...prev,
+      [diagramId]: position,
+    }))
+  }, [])
 
   const resetPositions = useCallback(() => {
     initializeDefaultPositions(diagrams)

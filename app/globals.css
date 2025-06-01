@@ -131,39 +131,19 @@
     rgba(0, 0, 0, 0.05);
 }
 
-/* Optimized diagram wrapper animations */
+/* Diagram wrapper animations */
 .diagram-wrapper {
-  backface-visibility: hidden;
-  perspective: 1000px;
-  transform-style: preserve-3d;
+  transition: all 0.2s ease;
 }
 
 .diagram-wrapper:hover {
-  transform: translateY(-2px) translateZ(0);
+  transform: translateY(-2px);
 }
 
-/* Smooth dragging optimizations */
 .diagram-wrapper.dragging {
-  pointer-events: none;
-}
-
-.diagram-wrapper.dragging * {
-  pointer-events: none;
-}
-
-/* Hardware acceleration for smooth animations */
-.diagram-wrapper {
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-/* Error details animation */
-.error-toggle-button .toggle-icon {
-  transition: transform 0.3s ease;
-}
-
-.error-details-content {
-  transition: max-height 0.3s ease, margin-top 0.3s ease;
+  transform: scale(1.02) !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  z-index: 1000 !important;
 }
 
 /* Compact scrollbar styles */
@@ -210,13 +190,4 @@
 
 .list-compact-item {
   @apply p-1 text-xs rounded-sm;
-}
-
-/* Performance optimizations */
-* {
-  box-sizing: border-box;
-}
-
-.diagram-wrapper {
-  contain: layout style paint;
 }
