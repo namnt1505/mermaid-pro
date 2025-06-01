@@ -13,7 +13,11 @@ interface DiagramPreviewPanelProps {
 
 export function DiagramPreviewPanel({ diagrams, projectId, onRefresh }: DiagramPreviewPanelProps) {
   return (
-    <div className="h-full max-h-[calc(100vh-16px)] flex flex-col space-y-2 p-2 bg-card border rounded-md shadow-sm">
+    <div className="h-full max-h-[calc(100vh-16px)] flex flex-col space-y-2 p-2 bg-card border rounded-md shadow-sm" style={
+      {
+        maxHeight: "750px"
+      }
+    }>
       {/* Updated max-height to fit screen size */}
       <div className="flex justify-between items-center flex-shrink-0">
         <h2 className="text-sm font-semibold">Preview</h2>

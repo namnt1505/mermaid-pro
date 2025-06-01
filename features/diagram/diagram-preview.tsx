@@ -470,6 +470,36 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
           </Button>
         </div>
       </div>
+      <div className="space-y-2 flex-shrink-0">
+        {" "}
+        {/* Reduced spacing */}
+        <div className="flex items-center gap-2">
+          {" "}
+          {/* Reduced gap */}
+          <span className="text-xs font-medium">Zoom:</span> {/* Reduced text size */}
+          <div className="flex-1">
+            <Slider value={[zoom]} min={0.3} max={3} step={0.1} onValueChange={handleZoomChange} className="w-full" />
+          </div>
+          <span className="text-xs font-mono w-10 text-right bg-gray-100 px-1.5 py-0.5 rounded text-[10px]">
+            {/* Reduced sizes */}
+            {(zoom * 100).toFixed(0)}%
+          </span>
+        </div>
+        <div className="flex gap-1 justify-end">
+          {" "}
+          {/* Reduced gap */}
+          <Button variant="outline" onClick={copyToClipboard} className="flex items-center gap-1 h-6 px-2 text-xs">
+            {/* Reduced size */}
+            <Copy className="h-2.5 w-2.5" /> {/* Reduced icon size */}
+            Copy All
+          </Button>
+          <Button onClick={exportAsPNG} className="flex items-center gap-1 h-6 px-2 text-xs">
+            {/* Reduced size */}
+            <Download className="h-2.5 w-2.5" /> {/* Reduced icon size */}
+            Export All PNG
+          </Button>
+        </div>
+      </div>
 
       <div
         ref={containerRef}
@@ -505,37 +535,6 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
           {/* Reduced sizes */}
           <Hand className="h-2 w-2" /> {/* Reduced icon size */}
           Click & drag to move
-        </div>
-      </div>
-
-      <div className="space-y-2 flex-shrink-0">
-        {" "}
-        {/* Reduced spacing */}
-        <div className="flex items-center gap-2">
-          {" "}
-          {/* Reduced gap */}
-          <span className="text-xs font-medium">Zoom:</span> {/* Reduced text size */}
-          <div className="flex-1">
-            <Slider value={[zoom]} min={0.3} max={3} step={0.1} onValueChange={handleZoomChange} className="w-full" />
-          </div>
-          <span className="text-xs font-mono w-10 text-right bg-gray-100 px-1.5 py-0.5 rounded text-[10px]">
-            {/* Reduced sizes */}
-            {(zoom * 100).toFixed(0)}%
-          </span>
-        </div>
-        <div className="flex gap-1 justify-end">
-          {" "}
-          {/* Reduced gap */}
-          <Button variant="outline" onClick={copyToClipboard} className="flex items-center gap-1 h-6 px-2 text-xs">
-            {/* Reduced size */}
-            <Copy className="h-2.5 w-2.5" /> {/* Reduced icon size */}
-            Copy All
-          </Button>
-          <Button onClick={exportAsPNG} className="flex items-center gap-1 h-6 px-2 text-xs">
-            {/* Reduced size */}
-            <Download className="h-2.5 w-2.5" /> {/* Reduced icon size */}
-            Export All PNG
-          </Button>
         </div>
       </div>
 

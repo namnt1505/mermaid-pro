@@ -16,8 +16,6 @@ export function ProjectWorkspace() {
   const [isProjectToolMinimized, setIsProjectToolMinimized] = useState(false)
   const [windowWidth, setWindowWidth] = useState(1200)
 
-  const leftPanelRef = useRef<HTMLDivElement>(null)
-
   useEffect(() => {
     if (typeof window === "undefined") return
     setWindowWidth(window.innerWidth)
@@ -63,7 +61,7 @@ export function ProjectWorkspace() {
     <div className="space-y-3 h-screen flex flex-col">
       {" "}
       {/* Reduced spacing */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 px-2">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 p-2">
         {" "}
         {/* Reduced gap and added padding */}
         <ProjectSelector />
@@ -74,7 +72,6 @@ export function ProjectWorkspace() {
           {/* Added horizontal padding */}
           <ResizablePanelGroup direction="horizontal" className="h-full">
             <ResizablePanel
-              ref={leftPanelRef}
               defaultSize={leftPanelPercentage}
               minSize={isProjectToolMinimized ? 3 : 20} // Reduced min sizes
               maxSize={isProjectToolMinimized ? 3 : 40} // Reduced max sizes
