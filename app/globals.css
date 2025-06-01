@@ -112,11 +112,58 @@
   font-size: 16px;
 }
 
-/* Grid background */
-.grid-background {
-  background-image: radial-gradient(circle, #d0d0d0 1px, transparent 1px);
-  background-size: 20px 20px;
-  background-position: 0 0;
+/* Whiteboard Styles */
+.whiteboard-grid {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+    linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
+  background-position: -1px -1px, -1px -1px, -1px -1px, -1px -1px;
+}
+
+.whiteboard-container {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1), 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.whiteboard-container:hover {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15), 0 8px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px
+    rgba(0, 0, 0, 0.05);
+}
+
+/* Optimized diagram wrapper animations */
+.diagram-wrapper {
+  backface-visibility: hidden;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.diagram-wrapper:hover {
+  transform: translateY(-2px) translateZ(0);
+}
+
+/* Smooth dragging optimizations */
+.diagram-wrapper.dragging {
+  pointer-events: none;
+}
+
+.diagram-wrapper.dragging * {
+  pointer-events: none;
+}
+
+/* Hardware acceleration for smooth animations */
+.diagram-wrapper {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Error details animation */
+.error-toggle-button .toggle-icon {
+  transition: transform 0.3s ease;
+}
+
+.error-details-content {
+  transition: max-height 0.3s ease, margin-top 0.3s ease;
 }
 
 /* Compact scrollbar styles */
@@ -163,4 +210,13 @@
 
 .list-compact-item {
   @apply p-1 text-xs rounded-sm;
+}
+
+/* Performance optimizations */
+* {
+  box-sizing: border-box;
+}
+
+.diagram-wrapper {
+  contain: layout style paint;
 }
