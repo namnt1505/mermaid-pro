@@ -118,3 +118,49 @@
   background-size: 20px 20px;
   background-position: 0 0;
 }
+
+/* Compact scrollbar styles */
+.compact-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.compact-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.compact-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 2px;
+}
+
+.compact-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+/* Compact button styles */
+.btn-compact {
+  @apply h-6 px-2 text-xs;
+}
+
+.btn-compact-icon {
+  @apply h-6 w-6;
+}
+
+/* Compact panel styles */
+.panel-compact {
+  @apply p-2 space-y-2;
+}
+
+.panel-compact-header {
+  @apply text-sm font-medium;
+}
+
+/* Compact list styles */
+.list-compact {
+  @apply space-y-0.5;
+}
+
+.list-compact-item {
+  @apply p-1 text-xs rounded-sm;
+}

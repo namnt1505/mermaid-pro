@@ -14,13 +14,11 @@ export function ProjectWorkspace() {
   const [isAddDiagramOpen, setIsAddDiagramOpen] = useState(false)
   const [previewKey, setPreviewKey] = useState(0)
   const [isProjectToolMinimized, setIsProjectToolMinimized] = useState(false)
-  const [windowWidth, setWindowWidth] = useState(1200) // Default fallback width
+  const [windowWidth, setWindowWidth] = useState(1200)
 
   const leftPanelRef = useRef<HTMLDivElement>(null)
 
-  // Handle window resize and initial width
   useEffect(() => {
-    // Set initial window width
     if (typeof window === "undefined") return
     setWindowWidth(window.innerWidth)
 
@@ -30,25 +28,20 @@ export function ProjectWorkspace() {
 
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
-
   }, [])
 
-  // Force re-render of the preview
   const refreshPreview = useCallback(() => {
     setPreviewKey((prev) => prev + 1)
   }, [])
 
-  // Toggle project tool panel
   const toggleProjectTool = useCallback(() => {
     setIsProjectToolMinimized((prev) => !prev)
   }, [])
 
-  // Handle diagram selection
   const handleSelectDiagram = useCallback((id: string) => {
     setSelectedDiagramId(id)
   }, [])
 
-  // Handle diagram added
   const handleDiagramAdded = useCallback(
     (diagramId: string) => {
       setSelectedDiagramId(diagramId)
@@ -57,9 +50,8 @@ export function ProjectWorkspace() {
     [refreshPreview],
   )
 
-  // Calculate panel sizes based on minimized state - now SSR safe
   const { leftPanelPercentage, rightPanelPercentage } = useMemo(() => {
-    const leftSize = isProjectToolMinimized ? 70 : 350 // Fixed pixel values
+    const leftSize = isProjectToolMinimized ? 50 : 280 // Reduced from 70/350
     const leftPercentage = (leftSize / windowWidth) * 100
     return {
       leftPanelPercentage: leftPercentage,
@@ -68,22 +60,27 @@ export function ProjectWorkspace() {
   }, [isProjectToolMinimized, windowWidth])
 
   return (
-    <div className="space-y-6 h-screen flex flex-col">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="space-y-3 h-screen flex flex-col">
+      {" "}
+      {/* Reduced spacing */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 px-2">
+        {" "}
+        {/* Reduced gap and added padding */}
         <ProjectSelector />
       </div>
-
       {currentProject ? (
-        <div className="flex-1 min-h-0">
+        <div className="flex-1 min-h-0 px-2">
+          {" "}
+          {/* Added horizontal padding */}
           <ResizablePanelGroup direction="horizontal" className="h-full">
             <ResizablePanel
               ref={leftPanelRef}
               defaultSize={leftPanelPercentage}
-              minSize={isProjectToolMinimized ? 5 : 25}
-              maxSize={isProjectToolMinimized ? 5 : 50}
+              minSize={isProjectToolMinimized ? 3 : 20} // Reduced min sizes
+              maxSize={isProjectToolMinimized ? 3 : 40} // Reduced max sizes
               style={{
-                minWidth: isProjectToolMinimized ? "70px" : "250px",
-                width: isProjectToolMinimized ? "70px" : undefined,
+                minWidth: isProjectToolMinimized ? "50px" : "200px", // Reduced widths
+                width: isProjectToolMinimized ? "50px" : undefined,
               }}
               className="transition-all duration-300"
             >
@@ -98,7 +95,9 @@ export function ProjectWorkspace() {
               />
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={rightPanelPercentage} minSize={50}>
+            <ResizablePanel defaultSize={rightPanelPercentage} minSize={60}>
+              {" "}
+              {/* Increased min size for preview */}
               <DiagramPreviewPanel
                 key={previewKey}
                 diagrams={currentProject.diagrams}
@@ -109,13 +108,14 @@ export function ProjectWorkspace() {
           </ResizablePanelGroup>
         </div>
       ) : (
-        <div className="flex-1 flex items-center justify-center">
-          <div className="p-8 text-center text-muted-foreground border rounded-lg">
-            <p>No project selected. Please create a new project to get started.</p>
+        <div className="flex-1 flex items-center justify-center px-2">
+          <div className="p-6 text-center text-muted-foreground border rounded-lg">
+            {" "}
+            {/* Reduced padding */}
+            <p className="text-sm">No project selected. Please create a new project to get started.</p>
           </div>
         </div>
       )}
-
       <AddDiagramDialog
         open={isAddDiagramOpen}
         onOpenChange={setIsAddDiagramOpen}

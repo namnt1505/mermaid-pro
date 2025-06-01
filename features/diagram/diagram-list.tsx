@@ -46,18 +46,22 @@ export function DiagramList({ diagrams, selectedDiagramId, onSelectDiagram }: Di
   return (
     <div className="space-y-1">
       {diagrams.length > 0 ? (
-        <ScrollArea className="h-[180px] pr-2">
+        <ScrollArea className="h-[120px] pr-1">
+          {" "}
+          {/* Reduced height and padding */}
           <div className="space-y-1">
             {diagrams.map((diagram) => (
               <div
                 key={diagram.id}
-                className={`group flex items-center justify-between p-2 rounded-md cursor-pointer transition-colors text-sm ${
+                className={`group flex items-center justify-between p-1 rounded-sm cursor-pointer transition-colors text-xs ${
                   selectedDiagramId === diagram.id ? "bg-primary/10 border border-primary/30" : "hover:bg-accent"
-                }`}
+                }`} // Reduced padding, border radius, and text size
                 onClick={() => onSelectDiagram(diagram.id)}
               >
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
+                <div className="flex items-center gap-1 flex-1 min-w-0">
+                  {" "}
+                  {/* Reduced gap */}
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" /> {/* Reduced size */}
                   <span className="font-medium truncate">{diagram.name}</span>
                 </div>
 
@@ -66,20 +70,23 @@ export function DiagramList({ diagrams, selectedDiagramId, onSelectDiagram }: Di
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="h-5 w-5 opacity-0 group-hover:opacity-100 transition-opacity" // Reduced size
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <MoreHorizontal className="h-3 w-3" />
+                      <MoreHorizontal className="h-2.5 w-2.5" /> {/* Reduced icon size */}
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-32">
+                  <DropdownMenuContent align="end" className="w-28">
+                    {" "}
+                    {/* Reduced width */}
                     <DropdownMenuItem
                       onClick={(e) => {
                         e.stopPropagation()
                         setDiagramToRename(diagram)
                       }}
+                      className="text-xs" // Reduced text size
                     >
-                      <Edit2 className="h-3 w-3 mr-2" />
+                      <Edit2 className="h-2.5 w-2.5 mr-1" /> {/* Reduced icon size and margin */}
                       Rename
                     </DropdownMenuItem>
                     <DropdownMenuItem
@@ -87,9 +94,9 @@ export function DiagramList({ diagrams, selectedDiagramId, onSelectDiagram }: Di
                         e.stopPropagation()
                         setDiagramToDelete(diagram.id)
                       }}
-                      className="text-destructive"
+                      className="text-destructive text-xs" // Reduced text size
                     >
-                      <Trash2 className="h-3 w-3 mr-2" />
+                      <Trash2 className="h-2.5 w-2.5 mr-1" /> {/* Reduced icon size and margin */}
                       Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -99,7 +106,9 @@ export function DiagramList({ diagrams, selectedDiagramId, onSelectDiagram }: Di
           </div>
         </ScrollArea>
       ) : (
-        <div className="text-center text-muted-foreground p-3 text-xs">
+        <div className="text-center text-muted-foreground p-2 text-xs">
+          {" "}
+          {/* Reduced padding */}
           <p>No diagrams yet.</p>
         </div>
       )}

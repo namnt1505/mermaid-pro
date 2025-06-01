@@ -42,25 +42,34 @@ export function ProjectSelector() {
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1">
+      {" "}
+      {/* Reduced gap */}
+      <div className="flex items-center gap-1">
+        {" "}
+        {/* Reduced gap */}
         <Select value={currentProject?.id} onValueChange={selectProject}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Select a project" />
+          <SelectTrigger className="w-[140px] h-7 text-xs">
+            {" "}
+            {/* Reduced width, height, and text size */}
+            <SelectValue placeholder="Select project" /> {/* Shortened placeholder */}
           </SelectTrigger>
           <SelectContent>
             {projects.map((project) => (
-              <SelectItem key={project.id} value={project.id}>
+              <SelectItem key={project.id} value={project.id} className="text-xs">
+                {" "}
+                {/* Reduced text size */}
                 {project.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="icon">
-              <PlusCircle className="h-4 w-4" />
+            <Button variant="outline" size="icon" className="h-7 w-7">
+              {" "}
+              {/* Reduced size */}
+              <PlusCircle className="h-3 w-3" /> {/* Reduced icon size */}
             </Button>
           </DialogTrigger>
           <DialogContent>
@@ -94,12 +103,13 @@ export function ProjectSelector() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-
         {currentProject && (
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="outline" size="icon" className="text-destructive">
-                <Trash2 className="h-4 w-4" />
+              <Button variant="outline" size="icon" className="text-destructive h-7 w-7">
+                {" "}
+                {/* Reduced size */}
+                <Trash2 className="h-3 w-3" /> {/* Reduced icon size */}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
