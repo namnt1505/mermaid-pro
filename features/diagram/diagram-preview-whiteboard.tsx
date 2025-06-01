@@ -24,7 +24,6 @@ interface DiagramPreviewWhiteboardProps {
   diagramPositions: Record<string, DiagramPosition>
   updateDiagramPosition: (id: string, position: DiagramPosition) => void
   exportIndividualDiagram: (id: string, name: string) => void
-  isMoveMode: boolean
 }
 
 export const DiagramPreviewWhiteboard = memo(
@@ -44,7 +43,6 @@ export const DiagramPreviewWhiteboard = memo(
         diagramPositions,
         updateDiagramPosition,
         exportIndividualDiagram,
-        isMoveMode,
       },
       ref,
     ) => {
@@ -57,24 +55,18 @@ export const DiagramPreviewWhiteboard = memo(
             y: 50 + Math.floor(index / 3) * 300,
           }
 
-          console.log(`Rendering diagram ${diagram.id} at position:`, diagramPosition)
-
           return (
             <DraggableDiagram
               key={diagram.id}
               diagram={diagram}
               index={index}
               position={diagramPosition}
-              onPositionChange={(id, newPosition) => {
-                console.log("DiagramPreviewWhiteboard: Position change callback:", id, newPosition)
-                updateDiagramPosition(id, newPosition)
-              }}
+              onPositionChange={updateDiagramPosition}
               onExport={exportIndividualDiagram}
-              isMoveMode={isMoveMode}
             />
           )
         })
-      }, [diagrams, diagramPositions, isEmpty, updateDiagramPosition, exportIndividualDiagram, isMoveMode])
+      }, [diagrams, diagramPositions, isEmpty, updateDiagramPosition, exportIndividualDiagram])
 
       return (
         <div
@@ -116,21 +108,8 @@ export const DiagramPreviewWhiteboard = memo(
           {/* Whiteboard info */}
           <div className="absolute top-3 left-3 bg-white/80 backdrop-blur-sm rounded-md px-2 py-1 text-xs text-gray-600 border border-gray-200 shadow-sm">
             <div className="flex items-center gap-1">
-              <div className={`w-2 h-2 rounded-full ${isMoveMode ? "bg-orange-400" : "bg-green-400"}`}></div>
-              <span>{isMoveMode ? "Move Mode" : "View Mode"}</span>
-            </div>
-          </div>
-
-          {/* Debug info */}
-          <div className="absolute bottom-3 left-3 bg-white/80 backdrop-blur-sm rounded-md px-2 py-1 text-xs text-gray-600 border border-gray-200 shadow-sm">
-            <div className="flex flex-col gap-1">
-              <span>Debug: {Object.keys(diagramPositions).length} positions</span>
-              <button
-                onClick={() => console.log("Current positions:", diagramPositions)}
-                className="text-xs bg-blue-100 hover:bg-blue-200 px-2 py-0.5 rounded"
-              >
-                Log positions
-              </button>
+              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+              <span>Whiteboard Mode</span>
             </div>
           </div>
         </div>
