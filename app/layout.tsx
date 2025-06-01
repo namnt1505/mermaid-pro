@@ -1,11 +1,7 @@
-import type { Metadata } from 'next'
+"use client"
 import './globals.css'
-
-export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
-}
+import { Provider } from "react-redux"
+import { store } from "@/lib/store/store"
 
 export default function RootLayout({
   children,
@@ -14,7 +10,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Provider store={store}>
+          {children}
+        </Provider>
+      </body>
     </html>
   )
 }

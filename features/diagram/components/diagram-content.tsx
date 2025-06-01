@@ -55,14 +55,49 @@ export function DiagramContent({ code, index, name }: DiagramContentProps) {
         console.error(`Error rendering diagram ${name}:`, error);
         contentRef.current.innerHTML = `
           <div style="padding: 12px; color: #dc2626; border: 1px solid #fca5a5; border-radius: 6px; background: #fef2f2;">
-            <strong style="font-size: 12px;">Error rendering diagram "${name}"</strong><br/>
-            <span style="font-size: 11px;">Please check your Mermaid syntax.</span>
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div>
+                <strong style="font-size: 12px;">Error rendering diagram "${name}"</strong><br/>
+                <span style="font-size: 11px;">Please check your Mermaid syntax.</span>
+              </div>
+              <button 
+                class="copy-error-btn"
+                style="padding: 4px 8px; border-radius: 4px; font-size: 11px; background: #fee2e2; border: 1px solid #fca5a5; cursor: pointer; display: flex; align-items: center; gap: 4px;"
+                onclick="navigator.clipboard.writeText(this.parentElement.parentElement.querySelector('pre').textContent)"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                Copy Error
+              </button>
+            </div>
             <details style="margin-top: 6px;">
               <summary style="cursor: pointer; font-size: 11px;">Error details</summary>
-              <pre style="margin-top: 4px; font-size: 10px;">${error}</pre>
+              <pre style="margin-top: 4px; font-size: 10px; user-select: text; white-space: pre-wrap; word-break: break-word;">${error}</pre>
             </details>
           </div>
         `;
+
+        // Add click handler for copy button
+        const copyButton = contentRef.current.querySelector('.copy-error-btn');
+        if (copyButton) {
+          copyButton.addEventListener('click', () => {
+            const errorText = contentRef.current?.querySelector('pre')?.textContent || '';
+            navigator.clipboard.writeText(errorText).then(() => {
+              const originalText = copyButton.innerHTML;
+              copyButton.innerHTML = `
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 6 9 17l-5-5"></path>
+                </svg>
+                Copied!
+              `;
+              setTimeout(() => {
+                copyButton.innerHTML = originalText;
+              }, 2000);
+            });
+          });
+        }
       }
     };
 

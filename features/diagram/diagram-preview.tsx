@@ -9,6 +9,9 @@ import { Slider } from "@/components/ui/slider"
 import { ZoomIn, ZoomOut, Download, Copy, Hand } from "lucide-react"
 import { toPng } from "html-to-image"
 import { DiagramsContainer } from "./components/diagrams-container"
+import { useDispatch, useSelector } from "react-redux"
+import { RootState } from "@/lib/store/store"
+import { setZoom, setPosition, setLastPosition, setIsDragging, resetView as resetViewAction } from "@/lib/store/features/editorSlice"
 
 interface Diagram {
   id: string
@@ -22,13 +25,13 @@ interface DiagramPreviewProps {
 }
 
 export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
-  const [zoom, setZoom] = useState(1)
-  const [isDragging, setIsDragging] = useState(false)
-  const [position, setPosition] = useState({ x: 0, y: 0 })
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
-  const [lastPosition, setLastPosition] = useState({ x: 0, y: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
   const diagramRef = useRef<HTMLDivElement>(null)
+  
+  // Use Redux state and dispatch
+  const dispatch = useDispatch()
+  const { zoom, position, lastPosition, isDragging } = useSelector((state: RootState) => state.editor)
 
   // Export individual diagram as PNG
   const exportIndividualDiagram = async (diagramId: string, diagramName: string) => {
@@ -116,33 +119,33 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
 
   // Handle zoom changes
   const handleZoomChange = (value: number[]) => {
-    setZoom(value[0])
+    dispatch(setZoom(value[0]))
   }
 
   // Handle zoom in button
   const handleZoomIn = () => {
-    setZoom((prev) => Math.min(prev + 0.1, 3))
+    dispatch(setZoom(Math.min(zoom + 0.1, 3)))
   }
 
   // Handle zoom out button
   const handleZoomOut = () => {
-    setZoom((prev) => Math.max(prev - 0.1, 0.3))
+    dispatch(setZoom(Math.max(zoom - 0.1, 0.3)))
   }
 
   // Handle mouse down for dragging
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault()
-      setIsDragging(true)
+      dispatch(setIsDragging(true))
       setDragStart({ x: e.clientX, y: e.clientY })
-      setLastPosition(position)
+      dispatch(setLastPosition(position))
 
       // Change cursor to grabbing
       if (containerRef.current) {
         containerRef.current.style.cursor = "grabbing"
       }
     },
-    [position],
+    [position, dispatch],
   )
 
   // Handle mouse move for dragging
@@ -154,38 +157,37 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
       const dx = e.clientX - dragStart.x
       const dy = e.clientY - dragStart.y
 
-      setPosition({
+      dispatch(setPosition({
         x: lastPosition.x + dx,
         y: lastPosition.y + dy,
-      })
+      }))
     },
-    [isDragging, dragStart, lastPosition],
+    [isDragging, dragStart, lastPosition, dispatch],
   )
 
   // Handle mouse up to stop dragging
   const handleMouseUp = useCallback(() => {
-    setIsDragging(false)
+    dispatch(setIsDragging(false))
 
     // Reset cursor
     if (containerRef.current) {
       containerRef.current.style.cursor = "grab"
     }
-  }, [])
+  }, [dispatch])
 
   // Handle mouse leave to stop dragging
   const handleMouseLeave = useCallback(() => {
-    setIsDragging(false)
+    dispatch(setIsDragging(false))
 
     // Reset cursor
     if (containerRef.current) {
       containerRef.current.style.cursor = "grab"
     }
-  }, [])
+  }, [dispatch])
 
   // Reset position and zoom
   const resetView = () => {
-    setPosition({ x: 0, y: 0 })
-    setZoom(1)
+    dispatch(resetViewAction())
   }
 
   // Export all diagrams as PNG - capture the full content
