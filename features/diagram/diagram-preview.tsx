@@ -123,8 +123,8 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
       diagramsContainer.style.cssText = `
         display: flex;
         flex-direction: column;
-        gap: 40px;
-        padding: 20px;
+        gap: 20px;
+        padding: 10px;
         min-height: 100%;
         width: max-content;
         min-width: 100%;
@@ -137,14 +137,14 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
           diagramWrapper.className = "diagram-wrapper"
           diagramWrapper.id = `diagram-wrapper-${diagram.id}`
           diagramWrapper.style.cssText = `
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
             background: #ffffff;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
             position: relative;
             width: max-content;
-            min-width: 600px;
+            min-width: 500px;
           `
 
           // Add diagram header with title and export button
@@ -154,8 +154,8 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
             border-bottom: 1px solid #e5e7eb;
           `
 
@@ -164,7 +164,7 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
           titleElement.className = "diagram-title"
           titleElement.textContent = diagram.name
           titleElement.style.cssText = `
-            font-size: 18px;
+            font-size: 14px;
             font-weight: 600;
             color: #374151;
           `
@@ -173,7 +173,7 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
           const exportButton = document.createElement("button")
           exportButton.className = "export-button"
           exportButton.innerHTML = `
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="7,10 12,15 17,10"/>
               <line x1="12" y1="15" x2="12" y2="3"/>
@@ -182,8 +182,8 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
           exportButton.style.cssText = `
             background: #f3f4f6;
             border: 1px solid #d1d5db;
-            border-radius: 6px;
-            padding: 6px;
+            border-radius: 4px;
+            padding: 4px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -226,7 +226,7 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
               // Apply additional styling to the rendered SVG
               const svgElement = contentElement.querySelector("svg")
               if (svgElement) {
-                svgElement.style.padding = "10px"
+                svgElement.style.padding = "5px"
                 svgElement.style.width = "auto"
                 svgElement.style.height = "auto"
                 svgElement.style.maxWidth = "none"
@@ -236,36 +236,36 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
                 nodes.forEach((node) => {
                   const rect = node.querySelector("rect, circle, polygon")
                   if (rect) {
-                    rect.setAttribute("filter", "drop-shadow(2px 2px 4px rgba(0,0,0,0.1))")
-                    rect.setAttribute("rx", "8")
+                    rect.setAttribute("filter", "drop-shadow(1px 1px 2px rgba(0,0,0,0.1))")
+                    rect.setAttribute("rx", "6")
                   }
                 })
 
                 // Style subgraphs
                 const clusters = svgElement.querySelectorAll(".cluster rect")
                 clusters.forEach((cluster) => {
-                  cluster.setAttribute("rx", "12")
-                  cluster.setAttribute("stroke-width", "2")
-                  cluster.setAttribute("filter", "drop-shadow(1px 1px 3px rgba(0,0,0,0.1))")
+                  cluster.setAttribute("rx", "8")
+                  cluster.setAttribute("stroke-width", "1.5")
+                  cluster.setAttribute("filter", "drop-shadow(1px 1px 2px rgba(0,0,0,0.1))")
                 })
 
                 // Style edges/arrows
                 const edges = svgElement.querySelectorAll(".edgePath path")
                 edges.forEach((edge) => {
-                  edge.setAttribute("stroke-width", "2")
-                  edge.setAttribute("filter", "drop-shadow(1px 1px 2px rgba(0,0,0,0.1))")
+                  edge.setAttribute("stroke-width", "1.5")
+                  edge.setAttribute("filter", "drop-shadow(0.5px 0.5px 1px rgba(0,0,0,0.1))")
                 })
               }
             })
             .catch((error) => {
               console.error(`Error rendering diagram ${diagram.name}:`, error)
               contentElement.innerHTML = `
-                <div style="padding: 16px; color: #dc2626; border: 1px solid #fca5a5; border-radius: 8px; background: #fef2f2;">
-                  <strong>Error rendering diagram "${diagram.name}"</strong><br/>
-                  Please check your Mermaid syntax.
-                  <details style="margin-top: 8px;">
-                    <summary style="cursor: pointer;">Error details</summary>
-                    <pre style="margin-top: 8px; font-size: 12px;">${error}</pre>
+                <div style="padding: 12px; color: #dc2626; border: 1px solid #fca5a5; border-radius: 6px; background: #fef2f2;">
+                  <strong style="font-size: 12px;">Error rendering diagram "${diagram.name}"</strong><br/>
+                  <span style="font-size: 11px;">Please check your Mermaid syntax.</span>
+                  <details style="margin-top: 6px;">
+                    <summary style="cursor: pointer; font-size: 11px;">Error details</summary>
+                    <pre style="margin-top: 4px; font-size: 10px;">${error}</pre>
                   </details>
                 </div>
               `
@@ -279,7 +279,7 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
     } else if (diagramRef.current) {
       diagramRef.current.innerHTML = `
         <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #6b7280;">
-          <p>No diagrams to display</p>
+          <p style="font-size: 12px;">No diagrams to display</p>
         </div>
       `
     }
@@ -446,25 +446,34 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
   }
 
   return (
-    <div className="space-y-4 h-full flex flex-col">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Diagrams ({diagrams.length})</h3>
-        <div className="flex gap-2">
-          <Button variant="outline" size="icon" onClick={resetView} title="Reset view">
-            <span className="text-xs font-mono">1:1</span>
+    <div className="space-y-2 h-full flex flex-col">
+      {/* Reduced spacing from space-y-4 to space-y-2 */}
+      <div className="flex justify-between items-center flex-shrink-0">
+        <h3 className="text-sm font-semibold">Diagrams ({diagrams.length})</h3> {/* Reduced from text-lg to text-sm */}
+        <div className="flex gap-1">
+          {" "}
+          {/* Reduced gap from gap-2 to gap-1 */}
+          <Button variant="outline" size="icon" onClick={resetView} title="Reset view" className="h-5 w-5">
+            {" "}
+            {/* Reduced size */}
+            <span className="text-[10px] font-mono">1:1</span> {/* Reduced text size */}
           </Button>
-          <Button variant="outline" size="icon" onClick={handleZoomOut} title="Zoom out">
-            <ZoomOut className="h-4 w-4" />
+          <Button variant="outline" size="icon" onClick={handleZoomOut} title="Zoom out" className="h-5 w-5">
+            {" "}
+            {/* Reduced size */}
+            <ZoomOut className="h-2.5 w-2.5" /> {/* Reduced icon size */}
           </Button>
-          <Button variant="outline" size="icon" onClick={handleZoomIn} title="Zoom in">
-            <ZoomIn className="h-4 w-4" />
+          <Button variant="outline" size="icon" onClick={handleZoomIn} title="Zoom in" className="h-5 w-5">
+            {" "}
+            {/* Reduced size */}
+            <ZoomIn className="h-2.5 w-2.5" /> {/* Reduced icon size */}
           </Button>
         </div>
       </div>
 
       <div
         ref={containerRef}
-        className="flex-1 overflow-hidden border rounded-lg bg-white relative select-none"
+        className="flex-1 overflow-hidden border rounded-md bg-white relative select-none" /* Reduced border radius */
         style={{
           cursor: "grab",
         }}
@@ -486,36 +495,45 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
         >
           {!diagrams || diagrams.length === 0 ? (
             <div className="flex items-center justify-center h-full">
-              <p className="text-muted-foreground">No diagrams to display</p>
+              <p className="text-muted-foreground text-xs">No diagrams to display</p> {/* Reduced text size */}
             </div>
           ) : null}
         </div>
 
         {/* Drag indicator */}
-        <div className="absolute top-2 left-2 bg-black/10 backdrop-blur-sm rounded px-2 py-1 text-xs text-gray-600 flex items-center gap-1">
-          <Hand className="h-3 w-3" />
+        <div className="absolute top-1 left-1 bg-black/10 backdrop-blur-sm rounded px-1.5 py-0.5 text-[10px] text-gray-600 flex items-center gap-1">
+          {/* Reduced sizes */}
+          <Hand className="h-2 w-2" /> {/* Reduced icon size */}
           Click & drag to move
         </div>
       </div>
 
-      <div className="space-y-4">
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-medium">Zoom:</span>
+      <div className="space-y-2 flex-shrink-0">
+        {" "}
+        {/* Reduced spacing */}
+        <div className="flex items-center gap-2">
+          {" "}
+          {/* Reduced gap */}
+          <span className="text-xs font-medium">Zoom:</span> {/* Reduced text size */}
           <div className="flex-1">
             <Slider value={[zoom]} min={0.3} max={3} step={0.1} onValueChange={handleZoomChange} className="w-full" />
           </div>
-          <span className="text-sm font-mono w-12 text-right bg-gray-100 px-2 py-1 rounded">
+          <span className="text-xs font-mono w-10 text-right bg-gray-100 px-1.5 py-0.5 rounded text-[10px]">
+            {/* Reduced sizes */}
             {(zoom * 100).toFixed(0)}%
           </span>
         </div>
-
-        <div className="flex gap-2 justify-end">
-          <Button variant="outline" onClick={copyToClipboard} className="flex items-center gap-2">
-            <Copy className="h-4 w-4" />
+        <div className="flex gap-1 justify-end">
+          {" "}
+          {/* Reduced gap */}
+          <Button variant="outline" onClick={copyToClipboard} className="flex items-center gap-1 h-6 px-2 text-xs">
+            {/* Reduced size */}
+            <Copy className="h-2.5 w-2.5" /> {/* Reduced icon size */}
             Copy All
           </Button>
-          <Button onClick={exportAsPNG} className="flex items-center gap-2">
-            <Download className="h-4 w-4" />
+          <Button onClick={exportAsPNG} className="flex items-center gap-1 h-6 px-2 text-xs">
+            {/* Reduced size */}
+            <Download className="h-2.5 w-2.5" /> {/* Reduced icon size */}
             Export All PNG
           </Button>
         </div>
@@ -524,7 +542,7 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
       <style jsx>{`
         .grid-background {
           background-image: radial-gradient(circle, #d0d0d0 1px, transparent 1px);
-          background-size: 20px 20px;
+          background-size: 15px 15px; /* Reduced grid size */
           background-position: 0 0;
         }
 
@@ -537,9 +555,8 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
         }
 
         .diagram-wrapper:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.1);
-        }
+          transform: translateY(-1px); /* Reduced hover effect */
+          box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1); /* Reduced shadow */}
       `}</style>
     </div>
   )
