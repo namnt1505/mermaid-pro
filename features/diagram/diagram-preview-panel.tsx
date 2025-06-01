@@ -15,7 +15,8 @@ export function DiagramPreviewPanel({ diagrams, projectId, onRefresh }: DiagramP
   return (
     <div className="h-full max-h-[calc(100vh-16px)] flex flex-col space-y-2 p-2 bg-card border rounded-md shadow-sm" style={
       {
-        maxHeight: "750px"
+        maxHeight: "750px",
+        minHeight: "750px"
       }
     }>
       {/* Updated max-height to fit screen size */}
