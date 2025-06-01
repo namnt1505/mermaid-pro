@@ -21,23 +21,17 @@ export function ProjectWorkspace() {
   // Handle window resize and initial width
   useEffect(() => {
     // Set initial window width
-    if (typeof window !== "undefined") {
+    if (typeof window === "undefined") return
+    setWindowWidth(window.innerWidth)
+
+    const handleResize = () => {
       setWindowWidth(window.innerWidth)
-
-      const handleResize = () => {
-        setWindowWidth(window.innerWidth)
-      }
-
-      window.addEventListener("resize", handleResize)
-      return () => window.removeEventListener("resize", handleResize)
     }
-  }, [])
 
-  // Get the selected diagram
-  const selectedDiagram = useMemo(
-    () => currentProject?.diagrams.find((d) => d.id === selectedDiagramId),
-    [currentProject, selectedDiagramId],
-  )
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+
+  }, [])
 
   // Force re-render of the preview
   const refreshPreview = useCallback(() => {
@@ -64,11 +58,10 @@ export function ProjectWorkspace() {
   )
 
   // Calculate panel sizes based on minimized state - now SSR safe
-  const { leftPanelSize, leftPanelPercentage, rightPanelPercentage } = useMemo(() => {
+  const { leftPanelPercentage, rightPanelPercentage } = useMemo(() => {
     const leftSize = isProjectToolMinimized ? 70 : 350 // Fixed pixel values
     const leftPercentage = (leftSize / windowWidth) * 100
     return {
-      leftPanelSize: leftSize,
       leftPanelPercentage: leftPercentage,
       rightPanelPercentage: 100 - leftPercentage,
     }

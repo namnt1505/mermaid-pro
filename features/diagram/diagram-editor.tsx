@@ -1,9 +1,9 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useProject } from "@/context/project-context"
 import type { Diagram } from "@/types"
-import * as monaco from "monaco-editor"
+import type * as Monaco from "monaco-editor"
 import { Textarea } from "@/components/ui/textarea"
 
 interface DiagramEditorProps {
@@ -15,12 +15,17 @@ interface DiagramEditorProps {
 export function DiagramEditor({ diagram, projectId, onCodeChange }: DiagramEditorProps) {
   const { updateDiagram } = useProject()
   const editorRef = useRef<HTMLDivElement>(null)
-  const monacoEditorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
+  const monacoEditorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null)
 
   useEffect(() => {
-    if (editorRef.current) {
-      // Check if we can use Monaco Editor
-      if (typeof window !== "undefined" && typeof monaco !== "undefined") {
+    if (typeof window === "undefined") return
+
+    let monaco: typeof Monaco
+    let cleanup = () => {}
+
+    import("monaco-editor").then((module) => {
+      monaco = module
+      if (editorRef.current) {
         try {
           // Dispose previous editor if exists
           if (monacoEditorRef.current) {
@@ -60,7 +65,7 @@ export function DiagramEditor({ diagram, projectId, onCodeChange }: DiagramEdito
             }
           })
 
-          return () => {
+          cleanup = () => {
             if (monacoEditorRef.current) {
               monacoEditorRef.current.dispose()
             }
@@ -70,7 +75,9 @@ export function DiagramEditor({ diagram, projectId, onCodeChange }: DiagramEdito
           // Fall back to textarea
         }
       }
-    }
+    })
+
+    return cleanup
   }, [diagram.id, diagram.code, projectId, updateDiagram, onCodeChange])
 
   // Update editor content when diagram changes

@@ -8,15 +8,18 @@ import { ProjectWorkspace } from "@/features/project/project-workspace"
 export default function Home() {
   // Prevent browser back/forward navigation from losing state
   useEffect(() => {
+    // Only run on client side
+    if (typeof window === "undefined") return
+
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault()
       e.returnValue = ""
     }
 
-    window.addEventListener("beforeunload", handleBeforeUnload)
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload)
-    }
+      window.addEventListener("beforeunload", handleBeforeUnload)
+      return () => {
+        window.removeEventListener("beforeunload", handleBeforeUnload)
+      }
   }, [])
 
   return (

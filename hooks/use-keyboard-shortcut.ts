@@ -30,9 +30,11 @@ export function useKeyboardShortcut(keyCombination: KeyCombination, callback: ()
   useEffect(() => {
     if (!enabled) return
 
-    window.addEventListener("keydown", handleKeyDown)
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown)
+    if (typeof window !== "undefined") {
+      window.addEventListener("keydown", handleKeyDown)
+      return () => {
+        window.removeEventListener("keydown", handleKeyDown)
+      }
     }
-  }, [enabled, handleKeyDown])
+  }, [enabled, handleKeyDown, window])
 }

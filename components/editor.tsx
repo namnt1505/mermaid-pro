@@ -14,41 +14,42 @@ export default function Editor({ code, onChange }: EditorProps) {
   const monacoEditorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
 
   useEffect(() => {
+    if (typeof window === "undefined" || typeof monaco === "undefined") return
+
     if (editorRef.current) {
       // Check if we can use Monaco Editor
-      if (typeof window !== "undefined" && typeof monaco !== "undefined") {
-        try {
-          // Try to initialize Monaco Editor
-          monacoEditorRef.current = monaco.editor.create(editorRef.current, {
-            value: code,
-            language: "markdown",
-            theme: "vs-dark",
-            minimap: { enabled: false },
-            automaticLayout: true,
-            scrollBeyondLastLine: false,
-            lineNumbers: "on",
-            wordWrap: "on",
-            fontSize: 14,
-          })
+      try {
+        // Try to initialize Monaco Editor
+        monacoEditorRef.current = monaco.editor.create(editorRef.current, {
+          value: code,
+          language: "markdown",
+          theme: "vs-dark",
+          minimap: { enabled: false },
+          automaticLayout: true,
+          scrollBeyondLastLine: false,
+          lineNumbers: "on",
+          wordWrap: "on",
+          fontSize: 14,
+        })
 
-          monacoEditorRef.current.onDidChangeModelContent(() => {
-            if (monacoEditorRef.current) {
-              onChange(monacoEditorRef.current.getValue())
-            }
-          })
-
-          return () => {
-            if (monacoEditorRef.current) {
-              monacoEditorRef.current.dispose()
-            }
+        monacoEditorRef.current.onDidChangeModelContent(() => {
+          if (monacoEditorRef.current) {
+            onChange(monacoEditorRef.current.getValue())
           }
-        } catch (error) {
-          console.error("Failed to initialize Monaco Editor:", error)
-          // Fall back to textarea
+        })
+
+        return () => {
+          if (monacoEditorRef.current) {
+            monacoEditorRef.current.dispose()
+          }
         }
+      } catch (error) {
+        console.error("Failed to initialize Monaco Editor:", error)
+        // Fall back to textarea
       }
     }
-  }, [code, onChange])
+
+  }, [code, onChange, window, monaco])
 
   // If Monaco Editor fails to load or is not available, use a textarea as fallback
   if (!monacoEditorRef.current) {

@@ -34,7 +34,7 @@ export function useWindowSize(): WindowSize {
 
     // Remove event listener on cleanup
     return () => window.removeEventListener("resize", handleResize)
-  }, [])
+  }, [window])
 
   return windowSize
 }
