@@ -5,18 +5,21 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { ChevronDown } from "lucide-react"
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
+import { useDiagramAction } from '../context/DiagramActionContext'; // Added import
 
 interface DiagramContentProps {
+  diagramId: string; // Added diagramId
   code: string;
   index: number;
   name: string;
-  onCodeChange?: (newCode: string) => void;
+  // onCodeChange?: (newCode: string) => void; // Removed onCodeChange
 }
 
-export function DiagramContent({ code, index, name, onCodeChange }: DiagramContentProps) {
+export function DiagramContent({ diagramId, code, index, name }: DiagramContentProps) { // Added diagramId, removed onCodeChange
   const contentRef = useRef<HTMLDivElement>(null);
+  const { onCodeChange } = useDiagramAction(); // Use context
 
   // Check if the diagram is a flowchart and get its direction
   const getFlowchartDirection = (code: string) => {
@@ -32,9 +35,9 @@ export function DiagramContent({ code, index, name, onCodeChange }: DiagramConte
         new RegExp(`^(\\s*flowchart\\s+)(${currentDirection})`, 'm'),
         `$1${newDirection}`
       );
-      console.log(newCode)
+      // console.log(newCode) // Kept for debugging, can be removed
       if (onCodeChange) {
-        onCodeChange(newCode);
+        onCodeChange(diagramId, newCode); // Call context's onCodeChange with diagramId
       }
     }
   };

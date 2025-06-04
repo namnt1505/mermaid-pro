@@ -10,10 +10,9 @@ interface Diagram {
 interface DiagramsContainerProps {
   diagrams: Diagram[];
   onExportDiagram: (diagramId: string, diagramName: string) => Promise<void>;
-  onCodeChange?: (diagramId: string, newCode: string) => void;
 }
 
-export function DiagramsContainer({ diagrams, onExportDiagram, onCodeChange }: DiagramsContainerProps) {
+export function DiagramsContainer({ diagrams, onExportDiagram }: DiagramsContainerProps) {
   return (
     <div
       className="diagrams-container"
@@ -33,7 +32,6 @@ export function DiagramsContainer({ diagrams, onExportDiagram, onCodeChange }: D
           diagram={diagram}
           index={index}
           onExport={() => onExportDiagram(diagram.id, diagram.name)}
-          onCodeChange={(newCode) => onCodeChange?.(diagram.id, newCode)}
         />
       ))}
     </div>

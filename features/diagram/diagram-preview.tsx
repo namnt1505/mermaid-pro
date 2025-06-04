@@ -9,6 +9,7 @@ import { Slider } from "@/components/ui/slider"
 import { ZoomIn, ZoomOut, Download, Copy, Hand } from "lucide-react"
 import { toPng } from "html-to-image"
 import { DiagramsContainer } from "./components/diagrams-container"
+import { DiagramActionProvider } from "./context/DiagramActionContext" // Added import
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/lib/store/store"
 import { setZoom, setPosition, setLastPosition, setIsDragging, resetView as resetViewAction } from "@/lib/store/features/editorSlice"
@@ -273,6 +274,13 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
     }
   }
 
+  const handleCodeChange = (diagramId: string, newCode: string) => {
+    const diagram = diagrams.find(d => d.id === diagramId);
+    if (diagram) {
+      updateDiagram(projectId, diagramId, { code: newCode });
+    }
+  };
+
   return (
     <div className="space-y-2 h-full flex flex-col">
       <div className="flex justify-between items-center flex-shrink-0">
@@ -338,16 +346,13 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
               <p className="text-muted-foreground text-xs">No diagrams to display</p>
             </div>
           ) : (
-            <DiagramsContainer 
-              diagrams={diagrams} 
-              onExportDiagram={exportIndividualDiagram}
-              onCodeChange={(diagramId, newCode) => {
-                const diagram = diagrams.find(d => d.id === diagramId);
-                if (diagram) {
-                  updateDiagram(projectId, diagramId, { code: newCode });
-                }
-              }}
-            />
+            <DiagramActionProvider value={{ onCodeChange: handleCodeChange }}>
+              <DiagramsContainer 
+                diagrams={diagrams} 
+                onExportDiagram={exportIndividualDiagram}
+                // onCodeChange prop removed
+              />
+            </DiagramActionProvider>
           )}
         </div>
 
