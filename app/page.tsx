@@ -1,8 +1,8 @@
 "use client"
 
 import { useEffect } from "react"
-import { ProjectProvider } from "@/context/project-context"
-import { WorkspaceProvider } from "@/context/workspace-context"
+import { ProjectProvider } from "@/lib/context/project-context"
+import { WorkspaceProvider } from "@/lib/context/workspace-context"
 import { ProjectWorkspace } from "@/features/project/project-workspace"
 
 export default function Home() {

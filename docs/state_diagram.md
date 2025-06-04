@@ -1,4 +1,4 @@
-\
+
 ```mermaid
 stateDiagram-v2
   title Application State Diagram (Project & Diagram Focus)

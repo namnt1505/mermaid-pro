@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useDispatch } from "react-redux"
-import { useProject } from "@/context/project-context"
+import { useProject } from "@/lib/context/project-context"
 import { DIAGRAM_TEMPLATES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
 import {

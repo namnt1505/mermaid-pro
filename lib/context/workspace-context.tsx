@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react"
-import { useProject } from "@/context/project-context"
+import { useProject } from "@/lib/context/project-context"
 
 interface WorkspaceContextType {
   selectedDiagramId: string | null

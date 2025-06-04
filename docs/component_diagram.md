@@ -1,64 +1,37 @@
 ```mermaid
-componentDiagram
+classDiagram
   title Application Component Diagram
 
-  package "Browser" {
-    package "React Application (Next.js)" {
-      package "Contexts" {
-        [ProjectContext]
-        [WorkspaceContext]
-      }
+  class AppPage // Represents app/page.tsx
+  class ProjectContext
+  class WorkspaceContext
+  class EditorSlice
+  class ProjectWorkspace
+  class ProjectSelector
+  class WorkspacePanel
+  class DiagramPreviewPanel
+  class DiagramEditor
+  class DiagramList
+  class AddDiagramDialog
+  class RenameDiagramDialog
+  class DiagramPreview
+  class DiagramsContainer
+  class DiagramWrapper
+  class DiagramContent
+  class DiagramHeader
+  class FlowchartDirectionDropdown
+  class FlowchartDirectionIcons
+  class Button
+  class Dialog
+  class DropdownMenu
+  class Input
+  class Slider
+  class ResizablePanels
+  class MermaidJS
+  class LocalStorage
 
-      package "Redux Store" {
-        [EditorSlice]
-      }
+  AppPage --> ProjectWorkspace // Main page renders ProjectWorkspace
 
-      package "Features" {
-        package "Project" {
-          [ProjectWorkspace]
-          [ProjectSelector]
-        }
-
-        package "Workspace" {
-          [WorkspacePanel]
-        }
-
-        package "Diagram" {
-          [DiagramPreviewPanel]
-          [DiagramEditor]
-          [DiagramList]
-          [AddDiagramDialog]
-          [RenameDiagramDialog]
-
-          package "Diagram Components" {
-            [DiagramPreview]
-            [DiagramsContainer]
-            [DiagramWrapper]
-            [DiagramContent]
-            [DiagramHeader]
-            [FlowchartDirectionDropdown]
-            [FlowchartDirectionIcons]
-          }
-        }
-      }
-
-      package "UI Components" {
-        [Button]
-        [Dialog]
-        [DropdownMenu]
-        [Input]
-        [Slider]
-        [ResizablePanels]
-        [MermaidJS] <<library>>
-      }
-    }
-  }
-
-  package "Storage" {
-    [LocalStorage]
-  }
-
-  ' Relationships
   ProjectWorkspace --> WorkspacePanel
   ProjectWorkspace --> DiagramPreviewPanel
   ProjectWorkspace --> ProjectSelector

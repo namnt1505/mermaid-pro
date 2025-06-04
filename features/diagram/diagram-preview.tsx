@@ -12,7 +12,7 @@ import { DiagramsContainer } from "./components/diagrams-container"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/lib/store/store"
 import { setZoom, setPosition, setLastPosition, setIsDragging, resetView as resetViewAction } from "@/lib/store/features/editorSlice"
-import { useProject } from "@/context/project-context"
+import { useProject } from "@/lib/context/project-context"
 
 interface Diagram {
   id: string

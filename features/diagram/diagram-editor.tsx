@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { useProject } from "@/context/project-context"
+import { useProject } from "@/lib/context/project-context"
 import type { Diagram } from "@/types"
 import type * as Monaco from "monaco-editor"
 import CodeEditor from "@uiw/react-textarea-code-editor"

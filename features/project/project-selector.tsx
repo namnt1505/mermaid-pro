@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useProject } from "@/context/project-context"
+import { useProject } from "@/lib/context/project-context"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import {

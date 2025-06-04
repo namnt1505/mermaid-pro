@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useProject } from "@/context/project-context"
+import { useProject } from "@/lib/context/project-context"
 import type { Diagram } from "@/types"
 import { Button } from "@/components/ui/button"
 import {

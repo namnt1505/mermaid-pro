@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useRef, useMemo, useCallback, useEffect } from "react"
-import { useProject } from "@/context/project-context"
-import { useWorkspace } from "@/context/workspace-context" // Added
+import { useProject } from "@/lib/context/project-context"
+import { useWorkspace } from "@/lib/context/workspace-context" // Added
 import { ProjectSelector } from "@/features/project/project-selector"
 import { AddDiagramDialog } from "@/features/diagram/add-diagram-dialog"
 import { WorkspacePanel } from "@/features/workspace/workspace-panel"
