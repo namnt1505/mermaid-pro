@@ -5,10 +5,41 @@ interface DiagramContentProps {
   code: string;
   index: number;
   name: string;
+  onCodeChange?: (newCode: string) => void;
 }
 
-export function DiagramContent({ code, index, name }: DiagramContentProps) {
+export function DiagramContent({ code, index, name, onCodeChange }: DiagramContentProps) {
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Check if the diagram is a flowchart and get its direction
+  const getFlowchartDirection = (code: string) => {
+    const match = code.match(/^\s*flowchart\s+(TD|LR|RL|BT)/m);
+    return match ? match[1] : null;
+  };
+
+  // Change flowchart direction and update code
+  const changeDirection = (newDirection: string) => {
+    const currentDirection = getFlowchartDirection(code);
+    if (currentDirection) {
+      const newCode = code.replace(
+        new RegExp(`^(\\s*flowchart\\s+)(${currentDirection})`, 'm'),
+        `$1${newDirection}`
+      );
+      console.log(newCode)
+      if (onCodeChange) {
+        onCodeChange(newCode);
+      }
+    }
+  };
+
+  // Get next direction in cycle: TD -> LR -> RL -> BT -> TD
+  const getNextDirection = (current: string) => {
+    const directions = ['TD', 'LR', 'RL', 'BT'];
+    const currentIndex = directions.indexOf(current);
+    console.log(currentIndex)
+
+    return directions[(currentIndex + 1) % directions.length];
+  };
 
   useEffect(() => {
     const renderDiagram = async () => {
@@ -105,10 +136,42 @@ export function DiagramContent({ code, index, name }: DiagramContentProps) {
   }, [code, index, name]);
 
   return (
-    <div
-      ref={contentRef}
-      className="diagram-content"
-      id={`diagram-${index}`}
-    />
+    <div className="relative">
+      {getFlowchartDirection(code) && (
+        <button
+          className="absolute top-2 right-2 bg-white/80 hover:bg-white border border-gray-200 rounded-md px-2 py-1 text-xs font-medium text-gray-600 hover:text-gray-800 shadow-sm backdrop-blur-sm z-10 flex items-center gap-1.5 transition-all"
+          onClick={() => {
+            const currentDirection = getFlowchartDirection(code);
+            if (currentDirection) {
+              changeDirection(getNextDirection(currentDirection));
+            }
+          }}
+          title="Change flowchart direction"
+        >
+          <svg 
+            width="12" 
+            height="12" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <path d="M4 4v16" />
+            <path d="M20 4v16" />
+            <path d="M12 4v16" />
+            <path d="m8 8 4-4 4 4" />
+            <path d="m16 16-4 4-4-4" />
+          </svg>
+          {getFlowchartDirection(code)}
+        </button>
+      )}
+      <div
+        ref={contentRef}
+        className="diagram-content"
+        id={`diagram-${index}`}
+      />
+    </div>
   );
 }

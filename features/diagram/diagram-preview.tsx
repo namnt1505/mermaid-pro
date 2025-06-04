@@ -12,6 +12,7 @@ import { DiagramsContainer } from "./components/diagrams-container"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/lib/store/store"
 import { setZoom, setPosition, setLastPosition, setIsDragging, resetView as resetViewAction } from "@/lib/store/features/editorSlice"
+import { useProject } from "@/context/project-context"
 
 interface Diagram {
   id: string
@@ -28,6 +29,7 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
   const diagramRef = useRef<HTMLDivElement>(null)
+  const { updateDiagram } = useProject()
   
   // Use Redux state and dispatch
   const dispatch = useDispatch()
@@ -336,7 +338,16 @@ export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
               <p className="text-muted-foreground text-xs">No diagrams to display</p>
             </div>
           ) : (
-            <DiagramsContainer diagrams={diagrams} onExportDiagram={exportIndividualDiagram} />
+            <DiagramsContainer 
+              diagrams={diagrams} 
+              onExportDiagram={exportIndividualDiagram}
+              onCodeChange={(diagramId, newCode) => {
+                const diagram = diagrams.find(d => d.id === diagramId);
+                if (diagram) {
+                  updateDiagram(projectId, diagramId, { code: newCode });
+                }
+              }}
+            />
           )}
         </div>
 

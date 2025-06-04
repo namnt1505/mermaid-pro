@@ -12,9 +12,10 @@ interface DiagramWrapperProps {
   diagram: Diagram;
   index: number;
   onExport: () => void;
+  onCodeChange?: (newCode: string) => void;
 }
 
-export function DiagramWrapper({ diagram, index, onExport }: DiagramWrapperProps) {
+export function DiagramWrapper({ diagram, index, onExport, onCodeChange }: DiagramWrapperProps) {
   return (
     <div
       className="diagram-wrapper hover:-translate-y-0.5 transition-transform duration-200"
@@ -31,7 +32,7 @@ export function DiagramWrapper({ diagram, index, onExport }: DiagramWrapperProps
       }}
     >
       <DiagramHeader name={diagram.name} onExport={onExport} />
-      <DiagramContent code={diagram.code} index={index} name={diagram.name} />
+      <DiagramContent code={diagram.code} index={index} name={diagram.name} onCodeChange={onCodeChange} />
     </div>
   );
 }
