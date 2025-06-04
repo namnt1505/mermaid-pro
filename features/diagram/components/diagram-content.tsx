@@ -1,5 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import mermaid from 'mermaid';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { ChevronDown } from "lucide-react"
 
 interface DiagramContentProps {
   code: string;
@@ -32,14 +39,12 @@ export function DiagramContent({ code, index, name, onCodeChange }: DiagramConte
     }
   };
 
-  // Get next direction in cycle: TD -> LR -> RL -> BT -> TD
-  const getNextDirection = (current: string) => {
-    const directions = ['TD', 'LR', 'RL', 'BT'];
-    const currentIndex = directions.indexOf(current);
-    console.log(currentIndex)
-
-    return directions[(currentIndex + 1) % directions.length];
-  };
+  const directions = [
+    { value: 'TD', label: 'Top to Bottom' },
+    { value: 'BT', label: 'Bottom to Top' },
+    { value: 'LR', label: 'Left to Right' },
+    { value: 'RL', label: 'Right to Left' },
+  ];
 
   useEffect(() => {
     const renderDiagram = async () => {
@@ -56,6 +61,13 @@ export function DiagramContent({ code, index, name, onCodeChange }: DiagramConte
           svgElement.style.width = 'auto';
           svgElement.style.height = 'auto';
           svgElement.style.maxWidth = 'none';
+          
+          // Add smooth transition for SVG transformations
+          svgElement.style.transform = 'scale(1)';
+          svgElement.style.opacity = '0';
+          setTimeout(() => {
+            svgElement.style.opacity = '1';
+          }, 10);
 
           // Style different node types
           const nodes = svgElement.querySelectorAll('.node');
@@ -137,35 +149,65 @@ export function DiagramContent({ code, index, name, onCodeChange }: DiagramConte
 
   return (
     <div className="relative">
+      <style jsx>{`
+        .transform-opacity {
+          transition: transform 0.3s ease-out, opacity 0.2s ease-out;
+        }
+        .diagram-content svg {
+          transition: all 0.3s ease-out;
+        }
+        .diagram-content .node,
+        .diagram-content .cluster,
+        .diagram-content .edgePath {
+          transition: transform 0.3s ease-out, opacity 0.2s ease-out;
+        }
+        .diagram-content:not(:hover) .node,
+        .diagram-content:not(:hover) .cluster,
+        .diagram-content:not(:hover) .edgePath {
+          opacity: 0.9;
+        }
+        .diagram-content:hover .node,
+        .diagram-content:hover .cluster,
+        .diagram-content:hover .edgePath {
+          opacity: 1;
+        }
+      `}</style>
       {getFlowchartDirection(code) && (
-        <button
-          className="absolute top-2 right-2 bg-white/80 hover:bg-white border border-gray-200 rounded-md px-2 py-1 text-xs font-medium text-gray-600 hover:text-gray-800 shadow-sm backdrop-blur-sm z-10 flex items-center gap-1.5 transition-all"
-          onClick={() => {
-            const currentDirection = getFlowchartDirection(code);
-            if (currentDirection) {
-              changeDirection(getNextDirection(currentDirection));
-            }
-          }}
-          title="Change flowchart direction"
-        >
-          <svg 
-            width="12" 
-            height="12" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          >
-            <path d="M4 4v16" />
-            <path d="M20 4v16" />
-            <path d="M12 4v16" />
-            <path d="m8 8 4-4 4 4" />
-            <path d="m16 16-4 4-4-4" />
-          </svg>
-          {getFlowchartDirection(code)}
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger className="absolute top-2 right-2 bg-white/80 hover:bg-white border border-gray-200 rounded-md px-2 py-1 text-xs font-medium text-gray-600 hover:text-gray-800 shadow-sm backdrop-blur-sm z-10 flex items-center gap-1.5 transition-all">
+            <span className="flex items-center gap-1.5">
+              <svg 
+                width="12" 
+                height="12" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <path d="M4 4v16" />
+                <path d="M20 4v16" />
+                <path d="M12 4v16" />
+                <path d="m8 8 4-4 4 4" />
+                <path d="m16 16-4 4-4-4" />
+              </svg>
+              {directions.find(d => d.value === getFlowchartDirection(code))?.label || getFlowchartDirection(code)}
+              <ChevronDown className="h-3 w-3 opacity-50" />
+            </span>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-[150px]">
+            {directions.map((direction) => (
+              <DropdownMenuItem
+                key={direction.value}
+                onClick={() => changeDirection(direction.value)}
+                className="text-xs"
+              >
+                {direction.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
       <div
         ref={contentRef}
