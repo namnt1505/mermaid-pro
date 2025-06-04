@@ -1,59 +1,31 @@
 import React, { useEffect, useRef } from 'react';
 import mermaid from 'mermaid';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
-import { useDiagramAction } from '../context/DiagramActionContext'; // Added import
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/store/store';
+import { FlowchartDirectionDropdown } from './FlowchartDirectionDropdown';
 
 interface DiagramContentProps {
-  diagramId: string; // Added diagramId
-  code: string;
+  diagramId: string;
   index: number;
   name: string;
-  // onCodeChange?: (newCode: string) => void; // Removed onCodeChange
 }
 
-export function DiagramContent({ diagramId, code, index, name }: DiagramContentProps) { // Added diagramId, removed onCodeChange
+export function DiagramContent({ diagramId, index, name }: DiagramContentProps) {
   const contentRef = useRef<HTMLDivElement>(null);
-  const { onCodeChange } = useDiagramAction(); // Use context
 
-  // Check if the diagram is a flowchart and get its direction
-  const getFlowchartDirection = (code: string) => {
-    const match = code.match(/^\s*flowchart\s+(TD|LR|RL|BT)/m);
-    return match ? match[1] : null;
-  };
-
-  // Change flowchart direction and update code
-  const changeDirection = (newDirection: string) => {
-    const currentDirection = getFlowchartDirection(code);
-    if (currentDirection) {
-      const newCode = code.replace(
-        new RegExp(`^(\\s*flowchart\\s+)(${currentDirection})`, 'm'),
-        `$1${newDirection}`
-      );
-      // console.log(newCode) // Kept for debugging, can be removed
-      if (onCodeChange) {
-        onCodeChange(diagramId, newCode); // Call context's onCodeChange with diagramId
-      }
-    }
-  };
-
-  const directions = [
-    { value: 'TD', label: 'Top to Bottom' },
-    { value: 'BT', label: 'Bottom to Top' },
-    { value: 'LR', label: 'Left to Right' },
-    { value: 'RL', label: 'Right to Left' },
-  ];
+  // Get diagram code from Redux store
+  const code = useSelector((state: RootState) => state.editor.diagrams[diagramId]);
 
   useEffect(() => {
     const renderDiagram = async () => {
       if (!contentRef.current) return;
 
       try {
+        // Check if code is loaded from store before rendering
+        if (typeof code === 'undefined') {
+          contentRef.current.innerHTML = `<div style="padding: 12px;">Loading diagram code...</div>`;
+          return;
+        }
         const { svg } = await mermaid.render(`mermaid-diagram-${index}`, code);
         contentRef.current.innerHTML = svg;
 
@@ -148,70 +120,13 @@ export function DiagramContent({ diagramId, code, index, name }: DiagramContentP
     };
 
     renderDiagram();
-  }, [code, index, name]);
+  }, [code, index, name, diagramId]); // Added diagramId to dependency array, 'code' is now from store
 
   return (
     <div className="relative">
-      <style jsx>{`
-        .transform-opacity {
-          transition: transform 0.3s ease-out, opacity 0.2s ease-out;
-        }
-        .diagram-content svg {
-          transition: all 0.3s ease-out;
-        }
-        .diagram-content .node,
-        .diagram-content .cluster,
-        .diagram-content .edgePath {
-          transition: transform 0.3s ease-out, opacity 0.2s ease-out;
-        }
-        .diagram-content:not(:hover) .node,
-        .diagram-content:not(:hover) .cluster,
-        .diagram-content:not(:hover) .edgePath {
-          opacity: 0.9;
-        }
-        .diagram-content:hover .node,
-        .diagram-content:hover .cluster,
-        .diagram-content:hover .edgePath {
-          opacity: 1;
-        }
-      `}</style>
-      {getFlowchartDirection(code) && (
-        <DropdownMenu>
-          <DropdownMenuTrigger className="absolute top-2 right-2 bg-white/80 hover:bg-white border border-gray-200 rounded-md px-2 py-1 text-xs font-medium text-gray-600 hover:text-gray-800 shadow-sm backdrop-blur-sm z-10 flex items-center gap-1.5 transition-all">
-            <span className="flex items-center gap-1.5">
-              <svg 
-                width="12" 
-                height="12" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-              >
-                <path d="M4 4v16" />
-                <path d="M20 4v16" />
-                <path d="M12 4v16" />
-                <path d="m8 8 4-4 4 4" />
-                <path d="m16 16-4 4-4-4" />
-              </svg>
-              {directions.find(d => d.value === getFlowchartDirection(code))?.label || getFlowchartDirection(code)}
-              <ChevronDown className="h-3 w-3 opacity-50" />
-            </span>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[150px]">
-            {directions.map((direction) => (
-              <DropdownMenuItem
-                key={direction.value}
-                onClick={() => changeDirection(direction.value)}
-                className="text-xs"
-              >
-                {direction.label}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+      {/* Replaced old DropdownMenu with FlowchartDirectionDropdown */}
+      {code && <FlowchartDirectionDropdown diagramId={diagramId} code={code} />}
+      
       <div
         ref={contentRef}
         className="diagram-content"

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useMemo, useCallback, useEffect } from "react"
 import { useProject } from "@/context/project-context"
+import { useWorkspace } from "@/context/workspace-context" // Added
 import { ProjectSelector } from "@/features/project/project-selector"
 import { AddDiagramDialog } from "@/features/diagram/add-diagram-dialog"
 import { WorkspacePanel } from "@/features/workspace/workspace-panel"
@@ -10,9 +11,10 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 
 export function ProjectWorkspace() {
   const { currentProject } = useProject()
-  const [selectedDiagramId, setSelectedDiagramId] = useState<string | null>(currentProject?.diagrams[0]?.id || null)
+  const { selectedDiagramId, selectDiagram, refreshPreview, previewKey } = useWorkspace() // Added previewKey
+  // const [selectedDiagramId, setSelectedDiagramId] = useState<string | null>(currentProject?.diagrams[0]?.id || null) // Removed
   const [isAddDiagramOpen, setIsAddDiagramOpen] = useState(false)
-  const [previewKey, setPreviewKey] = useState(0)
+  // const [previewKey, setPreviewKey] = useState(0) // Removed, use from context if needed or remove if refreshPreview from context is enough
   const [isProjectToolMinimized, setIsProjectToolMinimized] = useState(false)
   const [windowWidth, setWindowWidth] = useState(1200)
 
@@ -28,24 +30,16 @@ export function ProjectWorkspace() {
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
-  const refreshPreview = useCallback(() => {
-    setPreviewKey((prev) => prev + 1)
-  }, [])
-
   const toggleProjectTool = useCallback(() => {
     setIsProjectToolMinimized((prev) => !prev)
   }, [])
 
-  const handleSelectDiagram = useCallback((id: string) => {
-    setSelectedDiagramId(id)
-  }, [])
-
   const handleDiagramAdded = useCallback(
     (diagramId: string) => {
-      setSelectedDiagramId(diagramId)
-      refreshPreview()
+      selectDiagram(diagramId) // Use from context
+      refreshPreview() // Use from context
     },
-    [refreshPreview],
+    [selectDiagram, refreshPreview], // Updated dependencies
   )
 
   const { leftPanelPercentage, rightPanelPercentage } = useMemo(() => {
@@ -85,10 +79,10 @@ export function ProjectWorkspace() {
                 isMinimized={isProjectToolMinimized}
                 onToggleMinimize={toggleProjectTool}
                 currentProject={currentProject}
-                selectedDiagramId={selectedDiagramId}
-                onSelectDiagram={handleSelectDiagram}
+                selectedDiagramId={selectedDiagramId} // Use from context
+                onSelectDiagram={selectDiagram} // Use from context
                 onAddDiagram={() => setIsAddDiagramOpen(true)}
-                onRefreshPreview={refreshPreview}
+                onRefreshPreview={refreshPreview} // Use from context
               />
             </ResizablePanel>
             <ResizableHandle withHandle />
@@ -96,7 +90,7 @@ export function ProjectWorkspace() {
               {" "}
               {/* Increased min size for preview */}
               <DiagramPreviewPanel
-                key={previewKey}
+                key={previewKey} // previewKey from context will be used by DiagramPreviewPanel if it consumes WorkspaceContext
                 diagrams={currentProject.diagrams}
                 projectId={currentProject.id}
                 onRefresh={refreshPreview}

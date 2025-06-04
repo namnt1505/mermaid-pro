@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useDispatch } from "react-redux"
 import { useProject } from "@/context/project-context"
 import { DIAGRAM_TEMPLATES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
@@ -26,6 +27,7 @@ interface AddDiagramDialogProps {
 
 export function AddDiagramDialog({ open, onOpenChange, projectId, onDiagramAdded }: AddDiagramDialogProps) {
   const { addDiagram } = useProject()
+  const dispatch = useDispatch()
   const [diagramName, setDiagramName] = useState("")
   const [diagramCode, setDiagramCode] = useState("")
   const [selectedTemplate, setSelectedTemplate] = useState("")
