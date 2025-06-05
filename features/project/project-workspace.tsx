@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useMemo, useCallback, useEffect } from "react"
-import { useProject } from "@/lib/context/project-context"
+import { useProjectStore } from "@/lib/hooks/use-project-store"
 import { ProjectSelector } from "@/features/project/project-selector"
 import { AddDiagramDialog } from "@/features/diagram/add-diagram-dialog"
 import { WorkspacePanel } from "@/features/workspace/workspace-panel"
@@ -9,7 +9,7 @@ import { DiagramPreviewPanel } from "@/features/diagram/diagram-preview-panel"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
 
 export function ProjectWorkspace() {
-  const { currentProject, selectedDiagramId, selectDiagram } = useProject()
+  const { currentProject, selectedDiagramId, selectDiagram } = useProjectStore()
   const [isAddDiagramOpen, setIsAddDiagramOpen] = useState(false)
   const [previewKey, setPreviewKey] = useState(0)
   const [isProjectToolMinimized, setIsProjectToolMinimized] = useState(false)

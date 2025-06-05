@@ -1,14 +1,10 @@
 import React from 'react';
 import { DiagramWrapper } from './diagram-wrapper';
 
-interface Diagram {
-  id: string;
-  name: string;
-  code: string;
-}
+import type { DiagramMetadata } from '@/types';
 
 interface DiagramsContainerProps {
-  diagrams: Diagram[];
+  diagrams: DiagramMetadata[];
   onExportDiagram: (diagramId: string, diagramName: string) => Promise<void>;
 }
 

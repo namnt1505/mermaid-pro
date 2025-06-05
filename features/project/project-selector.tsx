@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useProject } from "@/lib/context/project-context"
+import { useProjectStore } from "@/lib/hooks/use-project-store"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import {
@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/alert-dialog"
 
 export function ProjectSelector() {
-  const { projects, currentProject, selectProject, createProject, deleteProject } = useProject()
+  const { projects, currentProject, selectProject, createProject, deleteProject } = useProjectStore()
   const [newProjectName, setNewProjectName] = useState("")
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
 

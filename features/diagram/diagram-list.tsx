@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { useProject } from "@/lib/context/project-context"
-import type { Diagram } from "@/types"
+import { useProjectStore } from "@/lib/hooks/use-project-store"
+import type { DiagramMetadata } from "@/types"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Edit2, Trash2, MoreHorizontal } from "lucide-react"
@@ -20,13 +20,13 @@ import {
 import { RenameDiagramDialog } from "@/features/diagram/rename-diagram-dialog"
 
 interface DiagramListProps {
-  diagrams: Diagram[]
+  diagrams: DiagramMetadata[]
 }
 
 export function DiagramList({ diagrams }: DiagramListProps) {
-  const { currentProject, deleteDiagram, selectedDiagramId, selectDiagram } = useProject()
+  const { currentProject, deleteDiagram, selectedDiagramId, selectDiagram } = useProjectStore()
   const [diagramToDelete, setDiagramToDelete] = useState<string | null>(null)
-  const [diagramToRename, setDiagramToRename] = useState<Diagram | null>(null)
+  const [diagramToRename, setDiagramToRename] = useState<DiagramMetadata | null>(null)
 
   const handleDeleteDiagram = () => {
     if (diagramToDelete && currentProject) {

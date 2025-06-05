@@ -1,24 +1,34 @@
 "use client"
 
 import { useEffect, useRef } from "react"
-import { useProject } from "@/lib/context/project-context"
-import type { Diagram } from "@/types"
+import { useProjectStore } from "@/lib/hooks/use-project-store"
+import { useDispatch, useSelector } from "react-redux"
+import type { RootState } from "@/lib/store/store"
 import type * as Monaco from "monaco-editor"
 import CodeEditor from "@uiw/react-textarea-code-editor"
+import { setDiagramCode, setDiagramValidity } from "@/lib/store/features/editorSlice"
+import mermaid from "mermaid"
 
 interface DiagramEditorProps {
   onCodeChange?: () => void
 }
 
 export function DiagramEditor({ onCodeChange }: DiagramEditorProps) {
-  const { currentProject, selectedDiagramId, updateDiagram } = useProject()
+  const { currentProject, selectedDiagramId } = useProjectStore()
+  const dispatch = useDispatch()
   const editorRef = useRef<HTMLDivElement>(null)
   const monacoEditorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null)
 
+  // Get metadata from ProjectContext
   const diagram = currentProject?.diagrams.find(d => d.id === selectedDiagramId)
+  
+  // Get code from EditorSlice
+  const code = useSelector((state: RootState) => 
+    selectedDiagramId ? state.editor.diagrams[selectedDiagramId] : undefined
+  )
 
   useEffect(() => {
-    if (typeof window === "undefined" || !diagram || !currentProject || !selectedDiagramId) return
+    if (typeof window === "undefined" || !diagram || !currentProject || !selectedDiagramId || code === undefined) return
 
     let monaco: typeof Monaco
     let cleanup = () => {}
@@ -34,7 +44,7 @@ export function DiagramEditor({ onCodeChange }: DiagramEditorProps) {
 
           // Try to initialize Monaco Editor
           monacoEditorRef.current = monaco.editor.create(editorRef.current, {
-            value: diagram.code,
+            value: code,
             language: "markdown",
             theme: "vs-dark",
             minimap: { enabled: false },
@@ -56,9 +66,9 @@ export function DiagramEditor({ onCodeChange }: DiagramEditorProps) {
           })
 
           monacoEditorRef.current.onDidChangeModelContent(() => {
-            if (monacoEditorRef.current && currentProject && selectedDiagramId) {
+            if (monacoEditorRef.current && selectedDiagramId) {
               const newCode = monacoEditorRef.current.getValue()
-              updateDiagram(currentProject.id, selectedDiagramId, { code: newCode })
+              dispatch(setDiagramCode({ diagramId: selectedDiagramId, code: newCode }))
               if (onCodeChange) {
                 onCodeChange()
               }
@@ -78,16 +88,34 @@ export function DiagramEditor({ onCodeChange }: DiagramEditorProps) {
     })
 
     return cleanup
-  }, [diagram, currentProject, selectedDiagramId, updateDiagram, onCodeChange])
+  }, [diagram, currentProject, selectedDiagramId, code, dispatch, onCodeChange])
 
-  // Update editor content when diagram changes
+  // Update editor content when diagram code changes
   useEffect(() => {
-    if (diagram && monacoEditorRef.current && monacoEditorRef.current.getValue() !== diagram.code) {
-      monacoEditorRef.current.setValue(diagram.code)
+    if (code !== undefined && monacoEditorRef.current && monacoEditorRef.current.getValue() !== code) {
+      monacoEditorRef.current.setValue(code);
+      
+      // Validate diagram code and update state only if we have a valid diagramId
+      if (selectedDiagramId) {
+        try {
+          mermaid.parse(code);
+          dispatch(setDiagramValidity({ 
+            diagramId: selectedDiagramId, 
+            isValid: true 
+          }));
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          dispatch(setDiagramValidity({ 
+            diagramId: selectedDiagramId, 
+            isValid: false,
+            error: errorMessage
+          }));
+        }
+      }
     }
-  }, [diagram])
+  }, [code, selectedDiagramId, dispatch])
 
-  if (!diagram || !currentProject || !selectedDiagramId) {
+  if (!diagram || !currentProject || !selectedDiagramId || code === undefined) {
     return null
   }
 
@@ -98,10 +126,10 @@ export function DiagramEditor({ onCodeChange }: DiagramEditorProps) {
         <h3 className="text-sm font-medium">{diagram.name}</h3>
         <div className="flex-1 relative overflow-auto border rounded-md">
           <CodeEditor
-            value={diagram.code}
+            value={code}
             language="mermaid"
             onChange={(e) => {
-              updateDiagram(currentProject.id, selectedDiagramId, { code: e.target.value })
+              dispatch(setDiagramCode({ diagramId: selectedDiagramId, code: e.target.value }))
               if (onCodeChange) {
                 onCodeChange()
               }

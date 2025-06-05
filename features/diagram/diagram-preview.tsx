@@ -11,13 +11,13 @@ import { DiagramsContainer } from "./components/diagrams-container"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/lib/store/store"
 import { setZoom, setPosition, setLastPosition, setIsDragging, resetView as resetViewAction } from "@/lib/store/features/editorSlice"
-import { useProject } from "@/lib/context/project-context"
+import { useProjectStore } from "@/lib/hooks/use-project-store"
 
 export function DiagramPreview() {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
   const diagramRef = useRef<HTMLDivElement>(null)
-  const { currentProject, selectedDiagramId } = useProject()
+  const { currentProject, selectedDiagramId } = useProjectStore()
   
   // Use Redux state and dispatch
   const dispatch = useDispatch()

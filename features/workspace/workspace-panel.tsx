@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
 import { PlusCircle, ChevronDown, ChevronRight, Code, List, Minimize2, Maximize2 } from "lucide-react"
-import type { Project, Diagram } from "@/types"
+import type { Project, DiagramMetadata } from "@/types"
 
 interface WorkspacePanelProps {
   isMinimized: boolean
@@ -72,7 +72,7 @@ function MinimizedPanel({ onToggleMinimize }: { onToggleMinimize: () => void }) 
 
 interface ExpandedPanelProps {
   currentProject: Project
-  selectedDiagram: Diagram | undefined
+  selectedDiagram: DiagramMetadata | undefined
   isDiagramListOpen: boolean
   isEditorOpen: boolean
   onToggleDiagramList: () => void
@@ -177,7 +177,7 @@ function DiagramListSection({
 
 interface EditorSectionProps {
   currentProject: Project
-  selectedDiagram: Diagram | undefined
+  selectedDiagram: DiagramMetadata | undefined
   isEditorOpen: boolean
   onToggleEditor: () => void
   onAddDiagram: () => void

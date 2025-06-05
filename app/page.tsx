@@ -1,11 +1,19 @@
 "use client"
 
 import { useEffect } from "react"
-import { ProjectProvider } from "@/lib/context/project-context"
+import { useDispatch } from "react-redux"
 import { ProjectWorkspace } from "@/features/project/project-workspace"
+import { initializeProjects } from "@/lib/store/features/projectSlice"
 
 export default function Home() {
-  // Prevent browser back/forward navigation from losing state
+  const dispatch = useDispatch()
+
+  // Initialize projects from localStorage
+  useEffect(() => {
+    dispatch(initializeProjects())
+  }, [dispatch])
+
+  // Prevent browser back/forward navigation from losing state  
   useEffect(() => {
     // Only run on client side
     if (typeof window === "undefined") return
@@ -22,10 +30,8 @@ export default function Home() {
   }, [])
 
   return (
-    <ProjectProvider>
-        <main className="container mx-auto p-2 min-h-screen">
-          <ProjectWorkspace />
-        </main>
-    </ProjectProvider>
+    <main className="container mx-auto p-2 min-h-screen">
+      <ProjectWorkspace />
+    </main>
   )
 }

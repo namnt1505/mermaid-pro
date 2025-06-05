@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useProject } from "@/lib/context/project-context"
-import type { Diagram } from "@/types"
+import { useProjectStore } from "@/lib/hooks/use-project-store"
+import type { DiagramMetadata } from "@/types"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -18,12 +18,12 @@ import { Label } from "@/components/ui/label"
 interface RenameDiagramDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  diagram: Diagram | null
+  diagram: DiagramMetadata | null
   projectId: string
 }
 
 export function RenameDiagramDialog({ open, onOpenChange, diagram, projectId }: RenameDiagramDialogProps) {
-  const { updateDiagram } = useProject()
+  const { updateDiagramMetadata } = useProjectStore()
   const [diagramName, setDiagramName] = useState("")
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export function RenameDiagramDialog({ open, onOpenChange, diagram, projectId }: 
 
   const handleRenameDiagram = () => {
     if (diagramName.trim() && diagram && projectId) {
-      updateDiagram(projectId, diagram.id, { name: diagramName.trim() })
+      updateDiagramMetadata(projectId, diagram.id, { name: diagramName.trim() })
       onOpenChange(false)
     }
   }

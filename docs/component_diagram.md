@@ -55,13 +55,14 @@ classDiagram
   DiagramWrapper --> DiagramContent
 
   DiagramContent --> FlowchartDirectionDropdown : (if flowchart)
-  DiagramContent ..> EditorSlice : Reads diagram code
+  DiagramContent ..> EditorSlice : Reads diagram code and validation state
   DiagramContent ..> MermaidJS : Renders SVG
 
   FlowchartDirectionDropdown --> FlowchartDirectionIcons
   FlowchartDirectionDropdown ..> EditorSlice : Dispatches setDiagramCode
 
-  ProjectContext ..> LocalStorage : Saves/Loads projects
+  ProjectContext ..> LocalStorage : Saves/Loads project metadata
+  ProjectContext ..> EditorSlice : Coordinates diagram creation/deletion
   EditorSlice ..> LocalStorage : Saves/Loads diagram codes (via diagramsData key)
 
   AddDiagramDialog ..> ProjectContext : Adds new diagram

@@ -7,10 +7,18 @@ const loadDiagramsFromLocalStorage = (): Record<string, string> => {
   if (typeof window !== 'undefined') { // Check if localStorage is available
     try {
       const serializedDiagrams = localStorage.getItem(DIAGRAMS_LOCAL_STORAGE_KEY); // Used constant
-      if (serializedDiagrams === null) {
+      if (!serializedDiagrams) {
+        console.info(`No diagrams found in localStorage with key "${DIAGRAMS_LOCAL_STORAGE_KEY}"`);
         return {};
       }
-      const parsedDiagrams = JSON.parse(serializedDiagrams);
+
+      let parsedDiagrams;
+      try {
+        parsedDiagrams = JSON.parse(serializedDiagrams);
+      } catch (parseError) {
+        console.error(`Invalid JSON in localStorage for key "${DIAGRAMS_LOCAL_STORAGE_KEY}"`, parseError);
+        return {};
+      }
 
       // Enhanced validation for Record<string, string>
       if (typeof parsedDiagrams === 'object' && parsedDiagrams !== null && !Array.isArray(parsedDiagrams)) {
@@ -50,7 +58,12 @@ interface EditorState {
     y: number
   }
   isDragging: boolean
-  diagrams: Record<string, string>;
+  diagrams: Record<string, string>
+  diagramStates: Record<string, {
+    lastModified: string
+    isValid: boolean
+    error?: string
+  }>
 }
 
 const initialState: EditorState = {
@@ -59,16 +72,30 @@ const initialState: EditorState = {
   lastPosition: { x: 0, y: 0 },
   isDragging: false,
   diagrams: loadDiagramsFromLocalStorage(),
+  diagramStates: {}
 }
 
 // Helper function to save diagrams to localStorage
 const saveDiagramsToLocalStorage = (diagrams: Record<string, string>) => {
-  if (typeof window !== 'undefined') { // Check if localStorage is available
+  if (typeof window !== 'undefined') {
     try {
+      // Validate input
+      if (typeof diagrams !== 'object' || diagrams === null || Array.isArray(diagrams)) {
+        throw new Error('Invalid diagrams data structure');
+      }
+
+      // Validate each diagram code is a string
+      for (const [id, code] of Object.entries(diagrams)) {
+        if (typeof code !== 'string') {
+          throw new Error(`Invalid code type for diagram ${id}: ${typeof code}`);
+        }
+      }
+
       const serializedDiagrams = JSON.stringify(diagrams);
-      localStorage.setItem(DIAGRAMS_LOCAL_STORAGE_KEY, serializedDiagrams); // Used constant
+      localStorage.setItem(DIAGRAMS_LOCAL_STORAGE_KEY, serializedDiagrams);
     } catch (e) {
-      console.error(`Could not save diagrams to localStorage using key "${DIAGRAMS_LOCAL_STORAGE_KEY}"`, e); // Enhanced error message
+      console.error(`Could not save diagrams to localStorage using key "${DIAGRAMS_LOCAL_STORAGE_KEY}"`, e);
+      // Optionally, we could try to save a subset of valid diagrams
     }
   }
 };
@@ -96,17 +123,44 @@ const editorSlice = createSlice({
       state.isDragging = false
     },
     setDiagramCode: (state, action: PayloadAction<{ diagramId: string; code: string }>) => {
-      state.diagrams[action.payload.diagramId] = action.payload.code;
-      saveDiagramsToLocalStorage(state.diagrams); // Save to localStorage
+      const { diagramId, code } = action.payload;
+      state.diagrams[diagramId] = code;
+      state.diagramStates[diagramId] = {
+        lastModified: new Date().toISOString(),
+        isValid: true
+      };
+      saveDiagramsToLocalStorage(state.diagrams);
     },
-    removeDiagram: (state, action: PayloadAction<string>) => { // diagramId is the payload
-      delete state.diagrams[action.payload]; // Removes the diagram by ID
-      saveDiagramsToLocalStorage(state.diagrams); // Persists the change
+    removeDiagram: (state, action: PayloadAction<string>) => {
+      const diagramId = action.payload;
+      delete state.diagrams[diagramId];
+      delete state.diagramStates[diagramId];
+      saveDiagramsToLocalStorage(state.diagrams);
+    },
+    setDiagramValidity: (state, action: PayloadAction<{ diagramId: string; isValid: boolean; error?: string }>) => {
+      const { diagramId, isValid, error } = action.payload;
+      state.diagramStates[diagramId] = {
+        ...state.diagramStates[diagramId],
+        isValid,
+        error
+      };
+    },
+    importDiagrams: (state, action: PayloadAction<Record<string, string>>) => {
+      state.diagrams = { ...state.diagrams, ...action.payload };
+      // Reset all states for imported diagrams
+      Object.keys(action.payload).forEach(diagramId => {
+        state.diagramStates[diagramId] = {
+          lastModified: new Date().toISOString(),
+          isValid: true
+        };
+      });
+      saveDiagramsToLocalStorage(state.diagrams);
     },
     clearAllDiagrams: (state) => {
       state.diagrams = {};
-      saveDiagramsToLocalStorage(state.diagrams); // Persists the empty state
-    },
+      state.diagramStates = {};
+      saveDiagramsToLocalStorage(state.diagrams);
+    }
   },
 })
 
@@ -116,8 +170,10 @@ export const {
   setLastPosition,
   setIsDragging,
   resetView,
+  importDiagrams,
   setDiagramCode,
   removeDiagram,
+  setDiagramValidity,
   clearAllDiagrams
 } = editorSlice.actions;
 
