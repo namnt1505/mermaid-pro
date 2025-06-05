@@ -124,9 +124,6 @@ export function DiagramContent({ diagramId, index, name }: DiagramContentProps) 
 
   return (
     <div className="relative">
-      {/* Replaced old DropdownMenu with FlowchartDirectionDropdown */}
-      {code && <FlowchartDirectionDropdown diagramId={diagramId} code={code} />}
-      
       <div
         ref={contentRef}
         className="diagram-content"

@@ -20,7 +20,10 @@ export function DiagramWrapper({ diagram, index, onExport, code = '' }: DiagramW
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target instanceof HTMLElement && !e.target.closest('.resize-handle') && !isResizing) {
+    const target = e.target as HTMLElement;
+    const isInteractiveElement = target.closest('button, input, textarea, select, [role="button"], .resize-handle, a');
+    
+    if (!isResizing && !isInteractiveElement) {
       setIsDragging(true);
       setDragStartPos({
         x: e.clientX - position.x,
