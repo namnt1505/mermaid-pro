@@ -1,6 +1,7 @@
 import React from 'react';
 import { DiagramWrapper } from './diagram-wrapper';
-
+import { useSelector } from 'react-redux';
+import type { RootState } from '@/lib/store/store';
 import type { DiagramMetadata } from '@/types';
 
 interface DiagramsContainerProps {
@@ -9,6 +10,9 @@ interface DiagramsContainerProps {
 }
 
 export function DiagramsContainer({ diagrams, onExportDiagram }: DiagramsContainerProps) {
+  // Get all diagram codes from Redux store
+  const diagramCodes = useSelector((state: RootState) => state.editor.diagrams);
+
   return (
     <div
       className="diagrams-container"
@@ -28,6 +32,7 @@ export function DiagramsContainer({ diagrams, onExportDiagram }: DiagramsContain
           diagram={diagram}
           index={index}
           onExport={() => onExportDiagram(diagram.id, diagram.name)}
+          code={diagramCodes[diagram.id] || ''}
         />
       ))}
     </div>

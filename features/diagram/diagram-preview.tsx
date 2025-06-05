@@ -2,7 +2,6 @@
 
 import type React from "react"
 import { useState, useRef, useCallback, useEffect } from "react"
-import mermaid from "mermaid"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { ZoomIn, ZoomOut, Download, Copy, Hand } from "lucide-react"
@@ -51,68 +50,6 @@ export function DiagramPreview() {
       }
     }
   }
-
-  // Initialize mermaid
-  useEffect(() => {
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: "base",
-      securityLevel: "loose",
-      fontFamily: "Inter, sans-serif",
-      themeVariables: {
-        // Primary colors for different node types
-        primaryColor: "#e3f2fd",
-        primaryTextColor: "#1565c0",
-        primaryBorderColor: "#1976d2",
-
-        // Secondary colors for decision nodes
-        secondaryColor: "#f3e5f5",
-        secondaryTextColor: "#7b1fa2",
-        secondaryBorderColor: "#9c27b0",
-
-        // Tertiary colors for external entities
-        tertiaryColor: "#e8f5e8",
-        tertiaryTextColor: "#2e7d32",
-        tertiaryBorderColor: "#4caf50",
-
-        // Background and line colors
-        background: "#ffffff",
-        lineColor: "#616161",
-
-        // Subgraph colors
-        clusterBkg: "#f5f5f5",
-        clusterBorder: "#9e9e9e",
-
-        // Actor colors
-        actorBkg: "#fff3e0",
-        actorBorder: "#ff9800",
-        actorTextColor: "#e65100",
-
-        // Use case colors
-        usecaseBkg: "#e1f5fe",
-        usecaseBorder: "#0288d1",
-        usecaseTextColor: "#01579b",
-      },
-      flowchart: {
-        padding: 20,
-        nodeSpacing: 50,
-        rankSpacing: 80,
-        curve: "basis",
-        useMaxWidth: false,
-      },
-      sequence: {
-        diagramMarginX: 50,
-        diagramMarginY: 10,
-        actorMargin: 50,
-        width: 150,
-        height: 65,
-        boxMargin: 10,
-        boxTextMargin: 5,
-        noteMargin: 10,
-        messageMargin: 35,
-      },
-    })
-  }, [])
 
   // Handle zoom changes
   const handleZoomChange = (value: number[]) => {

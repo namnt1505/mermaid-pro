@@ -49,21 +49,21 @@ export function FlowchartDirectionDropdown({ diagramId, code }: FlowchartDirecti
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="absolute top-2 right-2 bg-white/80 hover:bg-white border border-gray-200 rounded-md px-2 py-1 text-xs font-medium text-gray-600 hover:text-gray-800 shadow-sm backdrop-blur-sm z-10 flex items-center gap-1.5 transition-all">
-        <span className="flex items-center gap-1.5">
+      <DropdownMenuTrigger className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-md transition-all">
+        <span className="flex items-center gap-1">
           {getDirectionIcon(currentDirectionValue)}
           <ChevronDown className="h-3 w-3 opacity-50" />
         </span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-auto min-w-[40px]"> {/* Adjusted width */}
+      <DropdownMenuContent align="end" className="min-w-[120px] p-1">
         {directions.map((direction) => (
           <DropdownMenuItem
             key={direction.value}
             onClick={() => changeDirection(direction.value)}
-            className="text-xs flex justify-center items-center p-2" // Center icon
+            className="text-xs flex items-center gap-2 py-1.5 px-2"
           >
             {getDirectionIcon(direction.value)}
-            {/* Optionally, add a tooltip with direction.label here */}
+            <span className="text-gray-600">{direction.label}</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
