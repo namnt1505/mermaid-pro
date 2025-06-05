@@ -13,13 +13,14 @@ interface DiagramWrapperProps {
 
 export function DiagramWrapper({ diagram, index, onExport, code = '' }: DiagramWrapperProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
-  const [width, setWidth] = useState(500);
+  const [size, setSize] = useState({ width: 500, height: 'auto' as const });
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target instanceof HTMLElement && !e.target.closest('.resize-handle')) {
+    if (e.target instanceof HTMLElement && !e.target.closest('.resize-handle') && !isResizing) {
       setIsDragging(true);
       setDragStartPos({
         x: e.clientX - position.x,
@@ -29,7 +30,7 @@ export function DiagramWrapper({ diagram, index, onExport, code = '' }: DiagramW
         containerRef.current.style.cursor = 'grabbing';
       }
     }
-  }, [position]);
+  }, [position, isResizing]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (isDragging) {
@@ -47,8 +48,21 @@ export function DiagramWrapper({ diagram, index, onExport, code = '' }: DiagramW
     }
   }, []);
 
-  const handleResize = useCallback((_e: MouseEvent | TouchEvent, _direction: string, _ref: HTMLElement, delta: { width: number }) => {
-    setWidth(prev => Math.max(500, prev + delta.width));
+  const handleResizeStart = useCallback(() => {
+    setIsResizing(true);
+  }, []);
+
+  const handleResize = useCallback((_e: MouseEvent | TouchEvent, _direction: string, ref: HTMLElement) => {
+    if (isResizing) {
+      setSize({
+        width: Math.max(500, ref.offsetWidth),
+        height: 'auto'
+      });
+    }
+  }, [isResizing]);
+
+  const handleResizeStop = useCallback(() => {
+    setIsResizing(false);
   }, []);
 
   const content = (
@@ -77,15 +91,17 @@ export function DiagramWrapper({ diagram, index, onExport, code = '' }: DiagramW
         willChange: 'transform',
         zIndex: isDragging ? 10 : 1,
         marginBottom: '1rem',
-        width: width,
-        height: 'auto'
+        width: size.width,
+        height: size.height
       }}
     >
       <Resizable
-        size={{ width, height: 'auto' }}
+        size={size}
         minWidth={500}
         maxWidth={2000}
-        onResizeStop={handleResize}
+        onResizeStart={handleResizeStart}
+        onResize={handleResize}
+        onResizeStop={handleResizeStop}
         enable={{
           right: true,
           top: false,
