@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useRef, useCallback, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
-import { ZoomIn, ZoomOut, Download, Copy, Hand, ArrowUpDown } from "lucide-react"
+import { ZoomIn, ZoomOut, Download, Copy } from "lucide-react"
 import { toPng } from "html-to-image"
 import { DiagramsContainer } from "./components/diagrams-container"
 import { useDispatch, useSelector } from "react-redux"
@@ -13,14 +13,12 @@ import { setZoom, setPosition, setLastPosition, setIsDragging, resetView as rese
 import { useProjectStore } from "@/lib/hooks/use-project-store"
 
 export function DiagramPreview() {
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
   const diagramRef = useRef<HTMLDivElement>(null)
   const { currentProject, selectedDiagramId } = useProjectStore()
   
-  // Use Redux state and dispatch
   const dispatch = useDispatch()
-  const { zoom, position, lastPosition, isDragging } = useSelector((state: RootState) => state.editor)
+  const { zoom } = useSelector((state: RootState) => state.editor)
 
   if (!currentProject) {
     return null
@@ -66,60 +64,7 @@ export function DiagramPreview() {
     dispatch(setZoom(Math.max(zoom - 0.1, 0.3)))
   }
 
-  // Handle mouse down for dragging
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault()
-      dispatch(setIsDragging(true))
-      setDragStart({ x: e.clientX, y: e.clientY })
-      dispatch(setLastPosition(position))
-
-      // Change cursor to grabbing
-      if (containerRef.current) {
-        containerRef.current.style.cursor = "grabbing"
-      }
-    },
-    [position, dispatch],
-  )
-
-  // Handle mouse move for dragging
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
-      if (!isDragging) return
-
-      e.preventDefault()
-      const dx = e.clientX - dragStart.x
-      const dy = e.clientY - dragStart.y
-
-      dispatch(setPosition({
-        x: lastPosition.x + dx,
-        y: lastPosition.y + dy,
-      }))
-    },
-    [isDragging, dragStart, lastPosition, dispatch],
-  )
-
-  // Handle mouse up to stop dragging
-  const handleMouseUp = useCallback(() => {
-    dispatch(setIsDragging(false))
-
-    // Reset cursor
-    if (containerRef.current) {
-      containerRef.current.style.cursor = "grab"
-    }
-  }, [dispatch])
-
-  // Handle mouse leave to stop dragging
-  const handleMouseLeave = useCallback(() => {
-    dispatch(setIsDragging(false))
-
-    // Reset cursor
-    if (containerRef.current) {
-      containerRef.current.style.cursor = "grab"
-    }
-  }, [dispatch])
-
-  // Reset position and zoom
+  // Reset zoom
   const resetView = () => {
     dispatch(resetViewAction())
   }
@@ -158,7 +103,7 @@ export function DiagramPreview() {
         console.error("Error exporting diagrams:", error)
         // Restore transform in case of error
         if (diagramRef.current) {
-          diagramRef.current.style.transform = `translate(${position.x}px, ${position.y}px) scale(${zoom})`
+          diagramRef.current.style.transform = `scale(${zoom})`
         }
       }
     }
@@ -199,7 +144,7 @@ export function DiagramPreview() {
         console.error("Error copying diagram:", error)
         // Restore transform in case of error
         if (diagramRef.current) {
-          diagramRef.current.style.transform = `translate(${position.x}px, ${position.y}px) scale(${zoom})`
+          diagramRef.current.style.transform = `scale(${zoom})`
         }
       }
     }
@@ -245,26 +190,17 @@ export function DiagramPreview() {
 
       <div
         ref={containerRef}
-        className="flex-1 overflow-hidden border rounded-md bg-white relative select-none"
-        style={{
-          cursor: "grab",
-        }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
+        className="flex-1 overflow-auto border rounded-md bg-white relative"
       >
         <div
           ref={diagramRef}
           style={{
-            transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
+            transform: `scale(${zoom})`,
             transformOrigin: "0 0",
-            transition: isDragging ? "none" : "transform 0.2s ease-out",
             width: "100%",
             minHeight: "100%",
-            position: "relative",
+            position: "relative"
           }}
-          className="w-full h-full"
         >
           {!diagrams || diagrams.length === 0 ? (
             <div className="flex items-center justify-center h-full">
@@ -284,28 +220,6 @@ export function DiagramPreview() {
           background-image: radial-gradient(circle, #d0d0d0 1px, transparent 1px);
           background-size: 15px 15px;
           background-position: 0 0;
-        }
-
-        .diagram-wrapper {
-          transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .diagram-wrapper:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1);
-        }
-
-        :global(.resizable-handle) {
-          background: transparent;
-          transition: background 0.2s ease;
-        }
-
-        :global(.resizable-handle:hover) {
-          background: #e5e7eb;
-        }
-        
-        :global(.resizable-handle-line) {
-          background: #94a3b8;
         }
       `}</style>
     </div>
