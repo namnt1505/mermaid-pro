@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useRef, useCallback, useEffect } from "react"
 import mermaid from "mermaid"
 import { Button } from "@/components/ui/button"
@@ -14,26 +13,22 @@ import { RootState } from "@/lib/store/store"
 import { setZoom, setPosition, setLastPosition, setIsDragging, resetView as resetViewAction } from "@/lib/store/features/editorSlice"
 import { useProject } from "@/lib/context/project-context"
 
-interface Diagram {
-  id: string
-  name: string
-  code: string
-}
-
-interface DiagramPreviewProps {
-  diagrams: Diagram[]
-  projectId: string
-}
-
-export function DiagramPreview({ diagrams, projectId }: DiagramPreviewProps) {
+export function DiagramPreview() {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
   const diagramRef = useRef<HTMLDivElement>(null)
-  const { updateDiagram } = useProject()
+  const { currentProject, selectedDiagramId } = useProject()
   
   // Use Redux state and dispatch
   const dispatch = useDispatch()
   const { zoom, position, lastPosition, isDragging } = useSelector((state: RootState) => state.editor)
+
+  if (!currentProject) {
+    return null
+  }
+
+  const diagrams = currentProject?.diagrams || []
+  const projectId = currentProject?.id
 
   // Export individual diagram as PNG
   const exportIndividualDiagram = async (diagramId: string, diagramName: string) => {

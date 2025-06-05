@@ -4,6 +4,7 @@ import { useState } from "react"
 import { DiagramEditor } from "@/features/diagram/diagram-editor"
 import { DiagramList } from "@/features/diagram/diagram-list"
 import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable"
 import { PlusCircle, ChevronDown, ChevronRight, Code, List, Minimize2, Maximize2 } from "lucide-react"
 import type { Project, Diagram } from "@/types"
@@ -40,13 +41,11 @@ export function WorkspacePanel({
     <ExpandedPanel
       currentProject={currentProject}
       selectedDiagram={selectedDiagram}
-      selectedDiagramId={selectedDiagramId}
       isDiagramListOpen={isDiagramListOpen}
       isEditorOpen={isEditorOpen}
       onToggleDiagramList={() => setIsDiagramListOpen(!isDiagramListOpen)}
       onToggleEditor={() => setIsEditorOpen(!isEditorOpen)}
       onToggleMinimize={onToggleMinimize}
-      onSelectDiagram={onSelectDiagram}
       onAddDiagram={onAddDiagram}
       onRefreshPreview={onRefreshPreview}
     />
@@ -74,13 +73,11 @@ function MinimizedPanel({ onToggleMinimize }: { onToggleMinimize: () => void }) 
 interface ExpandedPanelProps {
   currentProject: Project
   selectedDiagram: Diagram | undefined
-  selectedDiagramId: string | null
   isDiagramListOpen: boolean
   isEditorOpen: boolean
   onToggleDiagramList: () => void
   onToggleEditor: () => void
   onToggleMinimize: () => void
-  onSelectDiagram: (id: string) => void
   onAddDiagram: () => void
   onRefreshPreview: () => void
 }
@@ -88,13 +85,11 @@ interface ExpandedPanelProps {
 function ExpandedPanel({
   currentProject,
   selectedDiagram,
-  selectedDiagramId,
   isDiagramListOpen,
   isEditorOpen,
   onToggleDiagramList,
   onToggleEditor,
   onToggleMinimize,
-  onSelectDiagram,
   onAddDiagram,
   onRefreshPreview,
 }: ExpandedPanelProps) {
@@ -129,9 +124,7 @@ function ExpandedPanel({
             <DiagramListSection
               currentProject={currentProject}
               isDiagramListOpen={isDiagramListOpen}
-              selectedDiagramId={selectedDiagramId}
               onToggleDiagramList={onToggleDiagramList}
-              onSelectDiagram={onSelectDiagram}
             />
           </ResizablePanel>
           <ResizableHandle withHandle />
@@ -154,34 +147,29 @@ function ExpandedPanel({
 interface DiagramListSectionProps {
   currentProject: Project
   isDiagramListOpen: boolean
-  selectedDiagramId: string | null
   onToggleDiagramList: () => void
-  onSelectDiagram: (id: string) => void
 }
 
 function DiagramListSection({
   currentProject,
   isDiagramListOpen,
-  selectedDiagramId,
   onToggleDiagramList,
-  onSelectDiagram,
 }: DiagramListSectionProps) {
   return (
-    <div className="space-y-1">
-      <Button variant="ghost" className="w-full justify-start p-1 h-auto text-xs" onClick={onToggleDiagramList}>
+    <div className="flex flex-col h-full">
+      <Button variant="ghost" className="w-full justify-start p-1 h-auto text-xs flex-shrink-0" onClick={onToggleDiagramList}>
         {isDiagramListOpen ? <ChevronDown className="h-2.5 w-2.5" /> : <ChevronRight className="h-2.5 w-2.5" />}{" "}
-        {/* Reduced icon size */}
-        <List className="h-2.5 w-2.5 ml-1" /> {/* Reduced icon size */}
+        <List className="h-2.5 w-2.5 ml-1" />
         <span className="ml-1">Diagrams ({currentProject?.diagrams.length || 0})</span>
       </Button>
       {isDiagramListOpen && currentProject && (
-        <div className="pl-4">
-          <DiagramList
-            diagrams={currentProject.diagrams}
-            selectedDiagramId={selectedDiagramId}
-            onSelectDiagram={onSelectDiagram}
-          />
-        </div>
+        <ScrollArea className="flex-1 h-[calc(100%-2rem)]">
+          <div className="pl-4">
+            <DiagramList
+              diagrams={currentProject.diagrams}
+            />
+          </div>
+        </ScrollArea>
       )}
     </div>
   )
@@ -205,33 +193,30 @@ function EditorSection({
   onRefreshPreview,
 }: EditorSectionProps) {
   return (
-    <div className="space-y-1 h-full flex flex-col">
-      <Button variant="ghost" className="w-full justify-start p-1 h-auto text-xs" onClick={onToggleEditor}>
+    <div className="flex flex-col h-full">
+      <Button variant="ghost" className="w-full justify-start p-1 h-auto text-xs flex-shrink-0" onClick={onToggleEditor}>
         {isEditorOpen ? <ChevronDown className="h-2.5 w-2.5" /> : <ChevronRight className="h-2.5 w-2.5" />}{" "}
-        {/* Reduced icon size */}
-        <Code className="h-2.5 w-2.5 ml-1" /> {/* Reduced icon size */}
+        <Code className="h-2.5 w-2.5 ml-1" />
         <span className="ml-1">Editor</span>
       </Button>
       {isEditorOpen && (
-        <div className="flex-1 min-h-0">
+        <ScrollArea className="flex-1 h-[calc(100%-2rem)]">
           {selectedDiagram && currentProject ? (
-            <div className="h-full border rounded-md p-2 bg-background">
-              <DiagramEditor diagram={selectedDiagram} projectId={currentProject.id} onCodeChange={onRefreshPreview} />
+            <div className="border rounded-md p-2 bg-background h-full">
+              <DiagramEditor onCodeChange={onRefreshPreview} />
             </div>
           ) : (
             <div className="h-full flex items-center justify-center p-2 text-center text-muted-foreground border rounded-md bg-background">
               <div>
                 <p className="text-xs">No diagram selected</p>
                 <Button variant="outline" size="sm" onClick={onAddDiagram} className="mt-1 h-5 px-2 text-xs">
-                  {" "}
-                  {/* Reduced height from h-6 to h-5 */}
                   <PlusCircle className="h-2.5 w-2.5 mr-1" />
                   Add Diagram
                 </Button>
               </div>
             </div>
           )}
-        </div>
+        </ScrollArea>
       )}
     </div>
   )

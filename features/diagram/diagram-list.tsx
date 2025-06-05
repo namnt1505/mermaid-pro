@@ -21,12 +21,10 @@ import { RenameDiagramDialog } from "@/features/diagram/rename-diagram-dialog"
 
 interface DiagramListProps {
   diagrams: Diagram[]
-  selectedDiagramId: string | null
-  onSelectDiagram: (id: string) => void
 }
 
-export function DiagramList({ diagrams, selectedDiagramId, onSelectDiagram }: DiagramListProps) {
-  const { currentProject, deleteDiagram } = useProject()
+export function DiagramList({ diagrams }: DiagramListProps) {
+  const { currentProject, deleteDiagram, selectedDiagramId, selectDiagram } = useProject()
   const [diagramToDelete, setDiagramToDelete] = useState<string | null>(null)
   const [diagramToRename, setDiagramToRename] = useState<Diagram | null>(null)
 
@@ -36,7 +34,7 @@ export function DiagramList({ diagrams, selectedDiagramId, onSelectDiagram }: Di
       if (selectedDiagramId === diagramToDelete && diagrams.length > 1) {
         const remainingDiagrams = diagrams.filter((d) => d.id !== diagramToDelete)
         if (remainingDiagrams.length > 0) {
-          onSelectDiagram(remainingDiagrams[0].id)
+          selectDiagram(remainingDiagrams[0].id)
         }
       }
       setDiagramToDelete(null)
@@ -56,7 +54,7 @@ export function DiagramList({ diagrams, selectedDiagramId, onSelectDiagram }: Di
                 className={`group flex items-center justify-between p-1 rounded-sm cursor-pointer transition-colors text-xs ${
                   selectedDiagramId === diagram.id ? "bg-primary/10 border border-primary/30" : "hover:bg-accent"
                 }`} // Reduced padding, border radius, and text size
-                onClick={() => onSelectDiagram(diagram.id)}
+                onClick={() => selectDiagram(diagram.id)}
               >
                 <div className="flex items-center gap-1 flex-1 min-w-0">
                   {" "}

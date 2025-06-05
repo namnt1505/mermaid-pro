@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, type ReactNode, useCallback } from "react"
 import { v4 as uuidv4 } from "uuid"
 import { DEFAULT_DIAGRAMS } from "@/lib/constants"
 import type { Project, Diagram } from "@/types"
@@ -10,14 +10,16 @@ import { setDiagramCode, removeDiagram } from '@/lib/store/features/editorSlice'
 interface ProjectContextType {
   projects: Project[]
   currentProject: Project | null
+  selectedDiagramId: string | null // Added
   createProject: (name: string) => void
   selectProject: (id: string) => void
   deleteProject: (id: string) => void
   updateProjectName: (id: string, name: string) => void
-  addDiagram: (projectId: string, name: string, code: string) => string | undefined; // Modified return type
+  addDiagram: (projectId: string, name: string, code: string) => string | undefined
   updateDiagram: (projectId: string, diagramId: string, updates: Partial<Diagram>) => void
   deleteDiagram: (projectId: string, diagramId: string) => void
   getCombinedDiagramCode: (projectId: string) => string
+  selectDiagram: (id: string) => void // Added
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined)
@@ -25,6 +27,7 @@ const ProjectContext = createContext<ProjectContextType | undefined>(undefined)
 export function ProjectProvider({ children }: { children: ReactNode }) {
   const [projects, setProjects] = useState<Project[]>([])
   const [currentProject, setCurrentProject] = useState<Project | null>(null)
+  const [selectedDiagramId, setSelectedDiagramId] = useState<string | null>(null)
   const dispatch = useDispatch();
 
   // Load projects from localStorage on initial render
@@ -272,24 +275,33 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     return project.diagrams.map((diagram) => diagram.code).join("\n\n")
   }
 
-  return (
-    <ProjectContext.Provider
-      value={{
-        projects,
-        currentProject,
-        createProject,
-        selectProject,
-        deleteProject,
-        updateProjectName,
-        addDiagram,
-        updateDiagram,
-        deleteDiagram,
-        getCombinedDiagramCode,
-      }}
-    >
-      {children}
-    </ProjectContext.Provider>
-  )
+  const selectDiagram = useCallback((id: string) => {
+    setSelectedDiagramId(id)
+  }, [])
+
+  // Update selected diagram when project changes
+  useEffect(() => {
+    if (currentProject && (!selectedDiagramId || !currentProject.diagrams.find((d) => d.id === selectedDiagramId))) {
+      setSelectedDiagramId(currentProject.diagrams[0]?.id || null)
+    }
+  }, [currentProject, selectedDiagramId])
+
+  const value = {
+    projects,
+    currentProject,
+    selectedDiagramId, // Added
+    createProject,
+    selectProject,
+    deleteProject,
+    updateProjectName,
+    addDiagram,
+    updateDiagram,
+    deleteDiagram,
+    getCombinedDiagramCode,
+    selectDiagram, // Added
+  }
+
+  return <ProjectContext.Provider value={value}>{children}</ProjectContext.Provider>
 }
 
 export function useProject() {

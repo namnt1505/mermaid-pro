@@ -4,7 +4,6 @@ classDiagram
 
   class AppPage // Represents app/page.tsx
   class ProjectContext
-  class WorkspaceContext
   class EditorSlice
   class ProjectWorkspace
   class ProjectSelector
@@ -39,18 +38,13 @@ classDiagram
 
   WorkspacePanel --> DiagramList
   WorkspacePanel --> DiagramEditor
-  WorkspacePanel ..> WorkspaceContext
-  WorkspacePanel ..> ProjectContext
 
   DiagramEditor ..> EditorSlice : Reads/Writes diagram code
-  DiagramEditor ..> ProjectContext : Updates diagram code
-
-  DiagramList ..> ProjectContext : Reads diagrams, Deletes/Renames diagrams
-  DiagramList ..> WorkspaceContext : Selects diagram
+  DiagramList ..> ProjectContext : Reads diagrams, Selects/Deletes/Renames diagrams
 
   DiagramPreviewPanel --> DiagramPreview
   DiagramPreviewPanel ..> EditorSlice : Reads zoom/position
-  DiagramPreviewPanel ..> ProjectContext : Reads diagrams
+  DiagramPreviewPanel ..> ProjectContext : Gets selected diagram
 
   DiagramPreview --> DiagramsContainer
   DiagramPreview ..> EditorSlice : Dispatches zoom/pan actions

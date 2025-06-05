@@ -11,9 +11,8 @@ graph TD
         UI_FlowchartDirectionDropdown["FlowchartDirectionDropdown"]
     end
 
-    subgraph StateManagement ["Quản lý Trạng thái & Context"]
+    subgraph StateManagement ["Quản lý Trạng thái"]
         CTX_Project["ProjectContext"]
-        CTX_Workspace["WorkspaceContext"]
         STATE_EditorSlice["EditorSlice (Redux/Zustand)"]
     end
 
@@ -41,11 +40,10 @@ graph TD
     CTX_Project -- "Cập nhật UI (danh sách dự án, sơ đồ)" --> UI_ProjectSelector
     CTX_Project -- "Cập nhật UI (danh sách dự án, sơ đồ)" --> UI_DiagramList
 
-
     %% Diagram Listing and Selection
     User -- "Chọn Sơ đồ" --> UI_DiagramList
-    UI_DiagramList -- "Thông báo chọn sơ đồ (diagramId)" --> CTX_Workspace
-    CTX_Workspace -- "Cập nhật sơ đồ hoạt động (activeDiagramId)" --> STATE_EditorSlice
+    UI_DiagramList -- "Thông báo chọn sơ đồ (diagramId)" --> CTX_Project
+    CTX_Project -- "Cập nhật sơ đồ hoạt động" --> STATE_EditorSlice
     STATE_EditorSlice -- "Tải mã & cài đặt cho sơ đồ hoạt động" --> LS
     LS -- "Trả về mã & cài đặt" --> STATE_EditorSlice
     STATE_EditorSlice -- "Cung cấp mã cho" --> UI_DiagramEditor
@@ -61,17 +59,15 @@ graph TD
 
     CTX_Project -- "Cập nhật metadata sơ đồ trong dự án" --> CTX_Project
     CTX_Project -- "Lưu cấu trúc dự án (bao gồm metadata sơ đồ)" --> LS
-    %% Khi thêm sơ đồ mới, EditorSlice cũng cần khởi tạo dữ liệu
-    CTX_Project -- "Thông báo sơ đồ mới (diagramId)" --> STATE_EditorSlice
-    STATE_EditorSlice -- "Khởi tạo & lưu mã/cài đặt mặc định cho sơ đồ mới" --> LS
-
+    CTX_Project -- "Thông báo xóa sơ đồ" --> STATE_EditorSlice
+    STATE_EditorSlice -- "Xóa mã/cài đặt sơ đồ" --> LS
 
     %% Diagram Editing
     User -- "Sửa mã Sơ đồ" --> UI_DiagramEditor
     UI_DiagramEditor -- "Gửi mã đã sửa" --> STATE_EditorSlice
     STATE_EditorSlice -- "Cập nhật mã sơ đồ" --> STATE_EditorSlice
     STATE_EditorSlice -- "Lưu mã sơ đồ (diagramsData)" --> LS
-    STATE_EditorSlice -- "Thông báo mã thay đổi cho" --> UI_DiagramPreviewPanel %% Để re-render
+    STATE_EditorSlice -- "Thông báo mã thay đổi cho" --> UI_DiagramPreviewPanel
 
     %% Diagram Preview and Rendering
     UI_DiagramPreviewPanel -- "Sử dụng mã từ EditorSlice để kết xuất với" --> MJ
@@ -85,7 +81,6 @@ graph TD
     STATE_EditorSlice -- "Cập nhật cài đặt/mã sơ đồ" --> STATE_EditorSlice
     STATE_EditorSlice -- "Lưu cài đặt/mã sơ đồ" --> LS
 
-
     %% Styling
     classDef ui fill:#D6EAF8,stroke:#333,stroke-width:2px
     classDef state fill:#D1F2EB,stroke:#333,stroke-width:2px
@@ -94,6 +89,6 @@ graph TD
 
     class User user
     class UI_AppPage,UI_ProjectSelector,UI_DiagramList,UI_AddDiagramDialog,UI_RenameDiagramDialog,UI_DiagramEditor,UI_DiagramPreviewPanel,UI_FlowchartDirectionDropdown ui
-    class CTX_Project,CTX_Workspace,STATE_EditorSlice state
+    class CTX_Project,STATE_EditorSlice state
     class LS,MJ storage
 ```

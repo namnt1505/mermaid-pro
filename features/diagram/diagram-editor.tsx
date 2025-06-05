@@ -7,18 +7,18 @@ import type * as Monaco from "monaco-editor"
 import CodeEditor from "@uiw/react-textarea-code-editor"
 
 interface DiagramEditorProps {
-  diagram: Diagram
-  projectId: string
   onCodeChange?: () => void
 }
 
-export function DiagramEditor({ diagram, projectId, onCodeChange }: DiagramEditorProps) {
-  const { updateDiagram } = useProject()
+export function DiagramEditor({ onCodeChange }: DiagramEditorProps) {
+  const { currentProject, selectedDiagramId, updateDiagram } = useProject()
   const editorRef = useRef<HTMLDivElement>(null)
   const monacoEditorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null)
 
+  const diagram = currentProject?.diagrams.find(d => d.id === selectedDiagramId)
+
   useEffect(() => {
-    if (typeof window === "undefined") return
+    if (typeof window === "undefined" || !diagram || !currentProject || !selectedDiagramId) return
 
     let monaco: typeof Monaco
     let cleanup = () => {}
@@ -39,7 +39,7 @@ export function DiagramEditor({ diagram, projectId, onCodeChange }: DiagramEdito
             theme: "vs-dark",
             minimap: { enabled: false },
             automaticLayout: true,
-            scrollBeyondLastLine: false,
+            scrollBeyondLastLine: true,
             lineNumbers: "on",
             wordWrap: "on",
             fontSize: 12,
@@ -56,9 +56,9 @@ export function DiagramEditor({ diagram, projectId, onCodeChange }: DiagramEdito
           })
 
           monacoEditorRef.current.onDidChangeModelContent(() => {
-            if (monacoEditorRef.current) {
+            if (monacoEditorRef.current && currentProject && selectedDiagramId) {
               const newCode = monacoEditorRef.current.getValue()
-              updateDiagram(projectId, diagram.id, { code: newCode })
+              updateDiagram(currentProject.id, selectedDiagramId, { code: newCode })
               if (onCodeChange) {
                 onCodeChange()
               }
@@ -78,26 +78,30 @@ export function DiagramEditor({ diagram, projectId, onCodeChange }: DiagramEdito
     })
 
     return cleanup
-  }, [diagram.id, diagram.code, projectId, updateDiagram, onCodeChange])
+  }, [diagram, currentProject, selectedDiagramId, updateDiagram, onCodeChange])
 
   // Update editor content when diagram changes
   useEffect(() => {
-    if (monacoEditorRef.current && monacoEditorRef.current.getValue() !== diagram.code) {
+    if (diagram && monacoEditorRef.current && monacoEditorRef.current.getValue() !== diagram.code) {
       monacoEditorRef.current.setValue(diagram.code)
     }
-  }, [diagram.code])
+  }, [diagram])
+
+  if (!diagram || !currentProject || !selectedDiagramId) {
+    return null
+  }
 
   // If Monaco Editor fails to load or is not available, use a code editor as fallback
   if (!monacoEditorRef.current) {
     return (
-      <div className="space-y-2 h-full flex flex-col">
+      <div className="space-y-2 h-full flex flex-col overflow-hidden">
         <h3 className="text-sm font-medium">{diagram.name}</h3>
-        <div className="flex-1 relative overflow-auto border rounded-md min-h-[200px]">
+        <div className="flex-1 relative overflow-auto border rounded-md">
           <CodeEditor
             value={diagram.code}
             language="mermaid"
             onChange={(e) => {
-              updateDiagram(projectId, diagram.id, { code: e.target.value })
+              updateDiagram(currentProject.id, selectedDiagramId, { code: e.target.value })
               if (onCodeChange) {
                 onCodeChange()
               }
@@ -116,9 +120,9 @@ export function DiagramEditor({ diagram, projectId, onCodeChange }: DiagramEdito
   }
 
   return (
-    <div className="space-y-2 h-full flex flex-col">
+    <div className="space-y-2 h-full flex flex-col overflow-hidden">
       <h3 className="text-sm font-medium">{diagram.name}</h3>
-      <div ref={editorRef} className="flex-1 border rounded-md min-h-0" />
+      <div ref={editorRef} className="flex-1 border rounded-md min-h-0 overflow-hidden" />
     </div>
   )
 }
