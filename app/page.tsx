@@ -1,12 +1,12 @@
 "use client"
 
 import { useEffect } from "react"
-import { useDispatch } from "react-redux"
+import { useAppDispatch } from "@/lib/hooks/use-app-dispatch"
 import { ProjectWorkspace } from "@/features/project/project-workspace"
 import { initializeProjects } from "@/lib/store/features/projectSlice"
 
 export default function Home() {
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
 
   // Initialize projects from localStorage
   useEffect(() => {
