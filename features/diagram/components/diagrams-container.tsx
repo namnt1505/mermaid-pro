@@ -19,11 +19,12 @@ export function DiagramsContainer({ diagrams, onExportDiagram }: DiagramsContain
       style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: '20px',
-        padding: '10px',
+        padding: '20px',
         minHeight: '100%',
-        width: 'max-content',
-        minWidth: '100%',
+        width: '100%',
+        position: 'relative',
+        gap: '3rem',
+        overflow: 'visible',
       }}
     >
       {diagrams.map((diagram, index) => (
@@ -32,7 +33,7 @@ export function DiagramsContainer({ diagrams, onExportDiagram }: DiagramsContain
           diagram={diagram}
           index={index}
           onExport={() => onExportDiagram(diagram.id, diagram.name)}
-          code={diagramCodes[diagram.id] || ''}
+          code={diagramCodes[diagram.id]}
         />
       ))}
     </div>

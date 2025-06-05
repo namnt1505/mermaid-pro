@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useRef, useCallback, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
-import { ZoomIn, ZoomOut, Download, Copy, Hand } from "lucide-react"
+import { ZoomIn, ZoomOut, Download, Copy, Hand, ArrowUpDown } from "lucide-react"
 import { toPng } from "html-to-image"
 import { DiagramsContainer } from "./components/diagrams-container"
 import { useDispatch, useSelector } from "react-redux"
@@ -209,7 +209,7 @@ export function DiagramPreview() {
     <div className="space-y-2 h-full flex flex-col">
       <div className="flex justify-between items-center flex-shrink-0">
         <h3 className="text-sm font-semibold">Diagrams ({diagrams.length})</h3>
-        <div className="flex gap-1">
+        <div className="flex gap-1" id="diagram-preview-tool">
           <Button variant="outline" size="icon" onClick={resetView} title="Reset view" className="h-5 w-5">
             <span className="text-[10px] font-mono">1:1</span>
           </Button>
@@ -261,9 +261,10 @@ export function DiagramPreview() {
             transformOrigin: "0 0",
             transition: isDragging ? "none" : "transform 0.2s ease-out",
             width: "100%",
-            height: "100%",
+            minHeight: "100%",
+            position: "relative",
           }}
-          className="relative w-full h-full"
+          className="w-full h-full"
         >
           {!diagrams || diagrams.length === 0 ? (
             <div className="flex items-center justify-center h-full">
@@ -275,12 +276,6 @@ export function DiagramPreview() {
               onExportDiagram={exportIndividualDiagram}
             />
           )}
-        </div>
-
-        {/* Drag indicator */}
-        <div className="absolute top-1 left-1 bg-black/10 backdrop-blur-sm rounded px-1.5 py-0.5 text-[10px] text-gray-600 flex items-center gap-1">
-          <Hand className="h-2 w-2" />
-          Click & drag to move
         </div>
       </div>
 
@@ -298,6 +293,19 @@ export function DiagramPreview() {
         .diagram-wrapper:hover {
           transform: translateY(-1px);
           box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        :global(.resizable-handle) {
+          background: transparent;
+          transition: background 0.2s ease;
+        }
+
+        :global(.resizable-handle:hover) {
+          background: #e5e7eb;
+        }
+        
+        :global(.resizable-handle-line) {
+          background: #94a3b8;
         }
       `}</style>
     </div>
