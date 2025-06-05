@@ -2,7 +2,6 @@
 
 import { useEffect } from "react"
 import { ProjectProvider } from "@/lib/context/project-context"
-import { WorkspaceProvider } from "@/lib/context/workspace-context"
 import { ProjectWorkspace } from "@/features/project/project-workspace"
 
 export default function Home() {
@@ -24,11 +23,9 @@ export default function Home() {
 
   return (
     <ProjectProvider>
-      <WorkspaceProvider>
         <main className="container mx-auto p-2 min-h-screen">
           <ProjectWorkspace />
         </main>
-      </WorkspaceProvider>
     </ProjectProvider>
   )
 }
