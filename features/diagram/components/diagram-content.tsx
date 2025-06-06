@@ -1,8 +1,7 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import mermaid from 'mermaid';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store/store';
-import { FlowchartDirectionDropdown } from './FlowchartDirectionDropdown';
 
 interface DiagramContentProps {
   diagramId: string;
@@ -12,18 +11,32 @@ interface DiagramContentProps {
 
 export function DiagramContent({ diagramId, index, name }: DiagramContentProps) {
   const contentRef = useRef<HTMLDivElement>(null);
+  const [isRefReady, setIsRefReady] = useState(false);
 
   // Get diagram code from Redux store
   const code = useSelector((state: RootState) => state.editor.diagrams[diagramId]);
 
+  // Track when ref is ready
+  useEffect(() => {
+    if (contentRef.current) {
+      setIsRefReady(true);
+    }
+  }, []);
+
   useEffect(() => {
     const renderDiagram = async () => {
-      if (!contentRef.current) return;
-
+      if (!contentRef.current || !isRefReady) return;
+      
       try {
         // Check if code is loaded from store before rendering
-        if (typeof code === 'undefined') {
-          contentRef.current.innerHTML = `<div style="padding: 12px;">Loading diagram code...</div>`;
+        if (typeof code === 'undefined' || code === null) {
+          contentRef.current.innerHTML = `<div style="padding: 12px; color: #6b7280;">Loading diagram code...</div>`;
+          return;
+        }
+
+        // Check if code is empty string
+        if (code.trim() === '') {
+          contentRef.current.innerHTML = `<div style="padding: 12px; color: #6b7280;">No diagram code provided</div>`;
           return;
         }
         const { svg } = await mermaid.render(`mermaid-diagram-${index}`, code);
@@ -120,7 +133,7 @@ export function DiagramContent({ diagramId, index, name }: DiagramContentProps) 
     };
 
     renderDiagram();
-  }, [code, index, name, diagramId]); // Added diagramId to dependency array, 'code' is now from store
+  }, [code, index, name, diagramId, isRefReady]); // Add isRefReady to dependencies
 
   return (
     <div className="relative">

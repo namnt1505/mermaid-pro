@@ -16,7 +16,6 @@ interface WorkspacePanelProps {
   selectedDiagramId: string | null
   onSelectDiagram: (id: string) => void
   onAddDiagram: () => void
-  onRefreshPreview: () => void
 }
 
 export function WorkspacePanel({
@@ -25,7 +24,6 @@ export function WorkspacePanel({
   currentProject,
   selectedDiagramId,
   onAddDiagram,
-  onRefreshPreview,
 }: WorkspacePanelProps) {
   const [isDiagramListOpen, setIsDiagramListOpen] = useState(true)
   const [isEditorOpen, setIsEditorOpen] = useState(true)
@@ -46,7 +44,6 @@ export function WorkspacePanel({
       onToggleEditor={() => setIsEditorOpen(!isEditorOpen)}
       onToggleMinimize={onToggleMinimize}
       onAddDiagram={onAddDiagram}
-      onRefreshPreview={onRefreshPreview}
     />
   )
 }
@@ -78,7 +75,6 @@ interface ExpandedPanelProps {
   onToggleEditor: () => void
   onToggleMinimize: () => void
   onAddDiagram: () => void
-  onRefreshPreview: () => void
 }
 
 function ExpandedPanel({
@@ -90,7 +86,6 @@ function ExpandedPanel({
   onToggleEditor,
   onToggleMinimize,
   onAddDiagram,
-  onRefreshPreview,
 }: ExpandedPanelProps) {
   return (
     <div className="h-full max-h-[calc(100vh-120px)] flex flex-col space-y-2 p-2 bg-card border rounded-md shadow-sm">
@@ -134,7 +129,6 @@ function ExpandedPanel({
               isEditorOpen={isEditorOpen}
               onToggleEditor={onToggleEditor}
               onAddDiagram={onAddDiagram}
-              onRefreshPreview={onRefreshPreview}
             />
           </ResizablePanel>
         </ResizablePanelGroup>
@@ -180,7 +174,6 @@ interface EditorSectionProps {
   isEditorOpen: boolean
   onToggleEditor: () => void
   onAddDiagram: () => void
-  onRefreshPreview: () => void
 }
 
 function EditorSection({
@@ -189,7 +182,6 @@ function EditorSection({
   isEditorOpen,
   onToggleEditor,
   onAddDiagram,
-  onRefreshPreview,
 }: EditorSectionProps) {
   return (
     <div className="flex flex-col h-full">
@@ -202,7 +194,7 @@ function EditorSection({
         <ScrollArea className="flex-1 h-[calc(100%-2rem)]">
           {selectedDiagram && currentProject ? (
             <div className="border rounded-md p-2 bg-background h-full">
-              <DiagramEditor onCodeChange={onRefreshPreview} />
+              <DiagramEditor />
             </div>
           ) : (
             <div className="h-full flex items-center justify-center p-2 text-center text-muted-foreground border rounded-md bg-background">

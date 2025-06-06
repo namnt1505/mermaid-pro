@@ -8,10 +8,9 @@ import { useSelector } from "react-redux"
 import type { RootState } from "@/lib/store/store"
 
 interface DiagramPreviewPanelProps {
-  onRefresh: () => void
 }
 
-export function DiagramPreviewPanel({ onRefresh }: DiagramPreviewPanelProps) {
+export function DiagramPreviewPanel({  }: DiagramPreviewPanelProps) {
   const { currentProject } = useProjectStore();
   const diagrams = currentProject?.diagrams || [];
   const diagramStates = useSelector((state: RootState) => state.editor.diagramStates);
@@ -29,10 +28,6 @@ export function DiagramPreviewPanel({ onRefresh }: DiagramPreviewPanelProps) {
             ({validDiagrams}/{diagrams.length} valid)
           </span>
         </div>
-        <Button variant="outline" size="sm" onClick={onRefresh} className="flex items-center gap-1 h-6 px-2 text-xs">
-          <Layers className="h-2.5 w-2.5" />
-          Refresh
-        </Button>
       </div>
       <div className="flex-1 min-h-0 overflow-hidden">
         {diagrams.length > 0 ? (

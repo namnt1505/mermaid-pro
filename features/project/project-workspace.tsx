@@ -11,7 +11,6 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 export function ProjectWorkspace() {
   const { currentProject, selectedDiagramId, selectDiagram } = useProjectStore()
   const [isAddDiagramOpen, setIsAddDiagramOpen] = useState(false)
-  const [previewKey, setPreviewKey] = useState(0)
   const [isProjectToolMinimized, setIsProjectToolMinimized] = useState(false)
   const [windowWidth, setWindowWidth] = useState(1200)
 
@@ -34,14 +33,9 @@ export function ProjectWorkspace() {
   const handleDiagramAdded = useCallback(
     (diagramId: string) => {
       selectDiagram(diagramId)
-      setPreviewKey((prev) => prev + 1)
     },
     [selectDiagram],
   )
-
-  const refreshPreview = useCallback(() => {
-    setPreviewKey((prev) => prev + 1)
-  }, [])
 
   const { leftPanelPercentage, rightPanelPercentage } = useMemo(() => {
     const leftSize = isProjectToolMinimized ? 50 : 280
@@ -78,12 +72,11 @@ export function ProjectWorkspace() {
             selectedDiagramId={selectedDiagramId}
             onSelectDiagram={selectDiagram}
             onAddDiagram={() => setIsAddDiagramOpen(true)}
-            onRefreshPreview={refreshPreview}
           />
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel defaultSize={rightPanelPercentage} minSize={30}>
-          <DiagramPreviewPanel onRefresh={refreshPreview} />
+          <DiagramPreviewPanel />
         </ResizablePanel>
       </ResizablePanelGroup>
 
