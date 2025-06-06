@@ -53,7 +53,17 @@ export function ProjectWorkspace() {
   }, [isProjectToolMinimized, windowWidth])
 
   if (!currentProject) {
-    return null
+    return (
+      <div className="flex h-screen flex-col">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <h2 className="text-2xl font-semibold text-gray-900">Welcome to Mermaid Pro</h2>
+            <p className="text-gray-600">Get started by creating your first project</p>
+            <ProjectSelector />
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

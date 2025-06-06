@@ -24,7 +24,6 @@ export function WorkspacePanel({
   onToggleMinimize,
   currentProject,
   selectedDiagramId,
-  onSelectDiagram,
   onAddDiagram,
   onRefreshPreview,
 }: WorkspacePanelProps) {

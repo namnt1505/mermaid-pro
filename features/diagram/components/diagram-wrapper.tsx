@@ -1,8 +1,10 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { DiagramHeader } from './diagram-header';
 import { DiagramContent } from './diagram-content';
 import { Resizable } from 're-resizable';
 import type { DiagramMetadata } from '@/types';
+import { useDragElement } from '@/lib/hooks/use-drag-element';
+import { useResizeElement } from '@/lib/hooks/use-resize-element';
 
 interface DiagramWrapperProps {
   diagram: DiagramMetadata;
@@ -12,61 +14,72 @@ interface DiagramWrapperProps {
 }
 
 export function DiagramWrapper({ diagram, index, onExport, code = '' }: DiagramWrapperProps) {
-  const [isDragging, setIsDragging] = useState(false);
-  const [isResizing, setIsResizing] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [dragStartPos, setDragStartPos] = useState({ x: 0, y: 0 });
-  const [size, setSize] = useState({ width: 500, height: 'auto' as const });
   const containerRef = useRef<HTMLDivElement>(null);
+  const [dragDisabled, setDragDisabled] = useState(false);
+  const dragDisableTimerRef = useRef<number | null>(null);
 
-  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+  // Cleanup function for the timer
+  useEffect(() => {
+    return () => {
+      if (dragDisableTimerRef.current !== null) {
+        clearTimeout(dragDisableTimerRef.current);
+      }
+    };
+  }, []);
+
+  const {
+    isResizing,
+    size,
+    handleResizeStart,
+    handleResize,
+    handleResizeStop
+  } = useResizeElement({
+    elementRef: containerRef,
+    onResizeStart: useCallback(() => {
+      if (dragDisableTimerRef.current !== null) {
+        clearTimeout(dragDisableTimerRef.current);
+      }
+      setDragDisabled(true);
+    }, []),
+    onResizeEnd: useCallback(() => {
+      dragDisableTimerRef.current = window.setTimeout(() => {
+        setDragDisabled(false);
+        dragDisableTimerRef.current = null;
+      }, 100);
+    }, [])
+  });
+
+  const {
+    isDragging,
+    position,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp
+  } = useDragElement({
+    elementRef: containerRef,
+    disabled: dragDisabled || isResizing,
+  });
+
+  // Using useCallback to memoize event handlers
+  const handleMouseDownWrapper = useCallback((e: React.MouseEvent<HTMLElement>) => {
     const target = e.target as HTMLElement;
     const isInteractiveElement = target.closest('button, input, textarea, select, [role="button"], .resize-handle, a');
-    
-    if (!isResizing && !isInteractiveElement) {
-      setIsDragging(true);
-      setDragStartPos({
-        x: e.clientX - position.x,
-        y: e.clientY - position.y
-      });
-      if (containerRef.current) {
-        containerRef.current.style.cursor = 'grabbing';
-      }
+    if (!isInteractiveElement && !isResizing) {
+      handleMouseDown(e);
     }
-  }, [position, isResizing]);
+  }, [handleMouseDown, isResizing]);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (isDragging) {
-      setPosition({
-        x: e.clientX - dragStartPos.x,
-        y: e.clientY - dragStartPos.y
-      });
+  const handleMouseMoveWrapper = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    if (!dragDisabled && !isResizing) {
+      handleMouseMove(e);
     }
-  }, [isDragging, dragStartPos]);
+  }, [dragDisabled, isResizing, handleMouseMove]);
 
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-    if (containerRef.current) {
-      containerRef.current.style.cursor = 'grab';
+  const handleMouseUpWrapper = useCallback(() => {
+    if (!dragDisabled && !isResizing) {
+      handleMouseUp();
     }
-  }, []);
-
-  const handleResizeStart = useCallback(() => {
-    setIsResizing(true);
-  }, []);
-
-  const handleResize = useCallback((_e: MouseEvent | TouchEvent, _direction: string, ref: HTMLElement) => {
-    if (isResizing) {
-      setSize({
-        width: Math.max(500, ref.offsetWidth),
-        height: 'auto'
-      });
-    }
-  }, [isResizing]);
-
-  const handleResizeStop = useCallback(() => {
-    setIsResizing(false);
-  }, []);
+  }, [dragDisabled, isResizing, handleMouseUp]);
 
   const content = (
     <>
@@ -84,18 +97,20 @@ export function DiagramWrapper({ diagram, index, onExport, code = '' }: DiagramW
     <div
       className="diagram-wrapper"
       ref={containerRef}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
+      onMouseDown={handleMouseDownWrapper}
+      onMouseMove={handleMouseMoveWrapper}
+      onMouseUp={handleMouseUpWrapper}
+      onMouseLeave={handleMouseUpWrapper}
       style={{
         position: 'relative',
         transform: `translate(${position.x}px, ${position.y}px)`,
-        willChange: 'transform',
+        willChange: isDragging ? 'transform' : 'auto',
         zIndex: isDragging ? 10 : 1,
         marginBottom: '1rem',
         width: size.width,
-        height: size.height
+        height: size.height,
+        cursor: isDragging ? 'grabbing' : (dragDisabled || isResizing ? 'default' : 'grab'),
+        transition: isDragging || isResizing ? 'none' : 'all 0.2s ease'
       }}
     >
       <Resizable
@@ -146,18 +161,6 @@ export function DiagramWrapper({ diagram, index, onExport, code = '' }: DiagramW
           {content}
         </div>
       </Resizable>
-      <style jsx>{`
-        :global(.resize-handle) {
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          background-color: transparent;
-          transition: background-color 0.2s;
-        }
-        :global(.resize-handle:hover) {
-          background-color: #e5e7eb;
-        }
-      `}</style>
     </div>
   );
 }
