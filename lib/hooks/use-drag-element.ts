@@ -38,6 +38,66 @@ export function useDragElement({
   const lastUpTime = useRef<number>(0);
   const upTimeoutRef = useRef<number | null>(null);
 
+  // Global mouse move and up handlers
+  const handleGlobalMouseMove = useCallback((e: MouseEvent) => {
+    if (!isDragging || disabled) {
+      return;
+    }
+
+    // Use requestAnimationFrame for smooth movement
+    requestAnimationFrame(() => {
+      setPosition({
+        x: e.clientX - dragStartPos.x,
+        y: e.clientY - dragStartPos.y
+      });
+    });
+  }, [isDragging, disabled, dragStartPos.x, dragStartPos.y]);
+
+  const handleGlobalMouseUp = useCallback(() => {
+    if (!isDragging) return;
+
+    setIsDragging(false);
+
+    // Nếu disabled trong lúc drag, restore về vị trí ban đầu
+    if (disabled) {
+      setPosition(startPosition.current);
+    }
+
+    if (elementRef.current) {
+      elementRef.current.style.cursor = 'grab';
+    }
+
+    onDragEnd?.();
+  }, [isDragging, disabled, elementRef, onDragEnd]);
+
+  // Effect to manage global listeners
+  useEffect(() => {
+    if (isDragging && !disabled) {
+      document.addEventListener('mousemove', handleGlobalMouseMove);
+      document.addEventListener('mouseup', handleGlobalMouseUp);
+    } else {
+      // Cleanup ngay khi không còn drag hoặc bị disabled
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
+    };
+  }, [isDragging, disabled, handleGlobalMouseMove, handleGlobalMouseUp]);
+
+  // Force cleanup khi disabled
+  useEffect(() => {
+    if (disabled && isDragging) {
+      setIsDragging(false);
+      if (elementRef.current) {
+        elementRef.current.style.cursor = 'grab';
+      }
+      onDragEnd?.();
+    }
+  }, [disabled, isDragging, elementRef, onDragEnd]);
+
   // Cleanup timeouts
   useEffect(() => {
     return () => {
@@ -52,7 +112,7 @@ export function useDragElement({
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLElement>) => {
     if (disabled) {
-      setIsDragging(false);
+      // Nếu disabled, không khởi tạo drag
       return;
     }
     e.preventDefault();
@@ -83,36 +143,14 @@ export function useDragElement({
     onDragStart?.();
   }, [disabled, position, elementRef, onDragStart]);
 
+  // Dummy handlers for component events (actual handling is done globally)
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
-    if (!isDragging || disabled) {
-      return;
-    }
-
-    // Use requestAnimationFrame for smooth movement
-    requestAnimationFrame(() => {
-      setPosition({
-        x: e.clientX - dragStartPos.x,
-        y: e.clientY - dragStartPos.y
-      });
-    });
-  }, [isDragging, disabled, dragStartPos.x, dragStartPos.y]);
+    // No-op: Global handler will take care of this when dragging
+  }, []);
 
   const handleMouseUp = useCallback(() => {
-    if (!isDragging) return;
-
-    setIsDragging(false);
-
-    // If disabled during drag, restore to original position
-    if (disabled) {
-      setPosition(startPosition.current);
-    }
-
-    if (elementRef.current) {
-      elementRef.current.style.cursor = 'grab';
-    }
-
-    onDragEnd?.();
-  }, [isDragging, disabled, elementRef, onDragEnd]);
+    // No-op: Global handler will take care of this
+  }, []);
 
   return {
     isDragging,

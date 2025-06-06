@@ -41,16 +41,16 @@ export function DiagramWrapper({ diagram, index, onExport, code = '' }: DiagramW
   } = useResizeElement({
     elementRef: containerRef,
     onResizeStart: useCallback(() => {
+      // Clear timer nếu có
       if (dragDisableTimerRef.current !== null) {
         clearTimeout(dragDisableTimerRef.current);
+        dragDisableTimerRef.current = null;
       }
       setDragDisabled(true);
     }, []),
     onResizeEnd: useCallback(() => {
-      dragDisableTimerRef.current = window.setTimeout(() => {
-        setDragDisabled(false);
-        dragDisableTimerRef.current = null;
-      }, 100);
+      // Không delay, enable ngay lập tức nhưng đảm bảo không drag liền
+      setDragDisabled(false);
     }, [])
   });
 
@@ -69,22 +69,11 @@ export function DiagramWrapper({ diagram, index, onExport, code = '' }: DiagramW
   const handleMouseDownWrapper = useCallback((e: React.MouseEvent<HTMLElement>) => {
     const target = e.target as HTMLElement;
     const isInteractiveElement = target.closest('button, input, textarea, select, [role="button"], .resize-handle, a');
-    if (!isInteractiveElement && !isResizing) {
+    // Chỉ cho phép drag khi KHÔNG có resizing VÀ KHÔNG bị disable
+    if (!isInteractiveElement && !isResizing && !dragDisabled) {
       handleMouseDown(e);
     }
-  }, [handleMouseDown, isResizing]);
-
-  const handleMouseMoveWrapper = useCallback((e: React.MouseEvent<HTMLElement>) => {
-    if (!dragDisabled && !isResizing) {
-      handleMouseMove(e);
-    }
-  }, [dragDisabled, isResizing, handleMouseMove]);
-
-  const handleMouseUpWrapper = useCallback(() => {
-    if (!dragDisabled && !isResizing) {
-      handleMouseUp();
-    }
-  }, [dragDisabled, isResizing, handleMouseUp]);
+  }, [handleMouseDown, isResizing, dragDisabled]);
 
   const content = (
     <>
@@ -103,9 +92,6 @@ export function DiagramWrapper({ diagram, index, onExport, code = '' }: DiagramW
       className="diagram-wrapper"
       ref={containerRef}
       onMouseDown={handleMouseDownWrapper}
-      onMouseMove={handleMouseMoveWrapper}
-      onMouseUp={handleMouseUpWrapper}
-      onMouseLeave={handleMouseUpWrapper}
       style={{
         position: 'relative',
         transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
