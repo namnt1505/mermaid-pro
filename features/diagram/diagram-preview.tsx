@@ -9,7 +9,7 @@ import { toPng } from "html-to-image"
 import { DiagramsContainer } from "./components/diagrams-container"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "@/lib/store/store"
-import { setZoom, setPosition, setLastPosition, setIsDragging, resetView as resetViewAction } from "@/lib/store/features/editorSlice"
+import { setZoom, resetView as resetViewAction } from "@/lib/store/features/editorSlice"
 import { useProjectStore } from "@/lib/hooks/use-project-store"
 
 export function DiagramPreview() {
@@ -29,9 +29,13 @@ export function DiagramPreview() {
 
   // Export individual diagram as PNG
   const exportIndividualDiagram = async (diagramId: string, diagramName: string) => {
-    const diagramElement = document.getElementById(`diagram-wrapper-${diagramId}`)
+    const diagramElement = document.querySelector(`.diagram-${diagramId}`) as HTMLElement
     if (diagramElement) {
       try {
+        // Temporarily reset transform to capture content without zoom
+        const originalTransform = diagramElement.style.transform
+        diagramElement.style.transform = `translate(${diagramElement.style.transform.match(/translate\(([^)]+)\)/)?.[1] || '0px, 0px'}) scale(1)`
+        
         const dataUrl = await toPng(diagramElement, {
           backgroundColor: "#ffffff",
           pixelRatio: 2,
@@ -39,12 +43,20 @@ export function DiagramPreview() {
           height: diagramElement.offsetHeight,
         })
 
+        // Restore original transform
+        diagramElement.style.transform = originalTransform
+
         const link = document.createElement("a")
         link.download = `${diagramName.replace(/[^a-z0-9]/gi, "_").toLowerCase()}.png`
         link.href = dataUrl
         link.click()
       } catch (error) {
         console.error("Error exporting individual diagram:", error)
+        // Restore transform in case of error
+        const originalTransform = diagramElement.style.transform
+        if (originalTransform) {
+          diagramElement.style.transform = originalTransform
+        }
       }
     }
   }
@@ -56,12 +68,12 @@ export function DiagramPreview() {
 
   // Handle zoom in button
   const handleZoomIn = () => {
-    dispatch(setZoom(Math.min(zoom + 0.1, 3)))
+    dispatch(setZoom(Math.min(zoom + 0.214286, 2)))
   }
 
   // Handle zoom out button
   const handleZoomOut = () => {
-    dispatch(setZoom(Math.max(zoom - 0.1, 0.3)))
+    dispatch(setZoom(Math.max(zoom - 0.214286, 0.5)))
   }
 
   // Reset zoom
@@ -73,27 +85,27 @@ export function DiagramPreview() {
   const exportAsPNG = async () => {
     if (diagramRef.current) {
       try {
-        // Temporarily reset transform to capture full content
-        const originalTransform = diagramRef.current.style.transform
-        diagramRef.current.style.transform = "none"
-
-        // Get the full content dimensions
-        const diagramsContainer = diagramRef.current.querySelector(".diagrams-container") as HTMLElement
-        const fullWidth = diagramsContainer?.scrollWidth || diagramRef.current.scrollWidth
-        const fullHeight = diagramsContainer?.scrollHeight || diagramRef.current.scrollHeight
+        // Temporarily reset all diagram wrapper transforms to capture content without zoom
+        const diagramWrappers = diagramRef.current.querySelectorAll('.diagram-wrapper') as NodeListOf<HTMLElement>
+        const originalTransforms: string[] = []
+        
+        diagramWrappers.forEach((wrapper, index) => {
+          originalTransforms[index] = wrapper.style.transform
+          // Extract translate values and set scale to 1
+          const translateMatch = wrapper.style.transform.match(/translate\(([^)]+)\)/)
+          const translateValue = translateMatch?.[1] || '0px, 0px'
+          wrapper.style.transform = `translate(${translateValue}) scale(1)`
+        })
 
         const dataUrl = await toPng(diagramRef.current, {
           backgroundColor: "#ffffff",
           pixelRatio: 2,
-          width: fullWidth,
-          height: fullHeight,
-          style: {
-            transform: "none",
-          },
         })
 
-        // Restore original transform
-        diagramRef.current.style.transform = originalTransform
+        // Restore original transforms
+        diagramWrappers.forEach((wrapper, index) => {
+          wrapper.style.transform = originalTransforms[index]
+        })
 
         const link = document.createElement("a")
         link.download = `project-diagrams-${projectId}.png`
@@ -101,10 +113,13 @@ export function DiagramPreview() {
         link.click()
       } catch (error) {
         console.error("Error exporting diagrams:", error)
-        // Restore transform in case of error
-        if (diagramRef.current) {
-          diagramRef.current.style.transform = `scale(${zoom})`
-        }
+        // Restore transforms in case of error
+        const diagramWrappers = diagramRef.current?.querySelectorAll('.diagram-wrapper') as NodeListOf<HTMLElement>
+        diagramWrappers?.forEach((wrapper) => {
+          const translateMatch = wrapper.style.transform.match(/translate\(([^)]+)\)/)
+          const translateValue = translateMatch?.[1] || '0px, 0px'
+          wrapper.style.transform = `translate(${translateValue}) scale(${zoom})`
+        })
       }
     }
   }
@@ -113,26 +128,27 @@ export function DiagramPreview() {
   const copyToClipboard = async () => {
     if (diagramRef.current) {
       try {
-        // Temporarily reset transform to capture full content
-        const originalTransform = diagramRef.current.style.transform
-        diagramRef.current.style.transform = "none"
-
-        const diagramsContainer = diagramRef.current.querySelector(".diagrams-container") as HTMLElement
-        const fullWidth = diagramsContainer?.scrollWidth || diagramRef.current.scrollWidth
-        const fullHeight = diagramsContainer?.scrollHeight || diagramRef.current.scrollHeight
+        // Temporarily reset all diagram wrapper transforms to capture content without zoom
+        const diagramWrappers = diagramRef.current.querySelectorAll('.diagram-wrapper') as NodeListOf<HTMLElement>
+        const originalTransforms: string[] = []
+        
+        diagramWrappers.forEach((wrapper, index) => {
+          originalTransforms[index] = wrapper.style.transform
+          // Extract translate values and set scale to 1
+          const translateMatch = wrapper.style.transform.match(/translate\(([^)]+)\)/)
+          const translateValue = translateMatch?.[1] || '0px, 0px'
+          wrapper.style.transform = `translate(${translateValue}) scale(1)`
+        })
 
         const dataUrl = await toPng(diagramRef.current, {
           backgroundColor: "#ffffff",
           pixelRatio: 2,
-          width: fullWidth,
-          height: fullHeight,
-          style: {
-            transform: "none",
-          },
         })
 
-        // Restore original transform
-        diagramRef.current.style.transform = originalTransform
+        // Restore original transforms
+        diagramWrappers.forEach((wrapper, index) => {
+          wrapper.style.transform = originalTransforms[index]
+        })
 
         const blob = await fetch(dataUrl).then((res) => res.blob())
         await navigator.clipboard.write([
@@ -142,10 +158,13 @@ export function DiagramPreview() {
         ])
       } catch (error) {
         console.error("Error copying diagram:", error)
-        // Restore transform in case of error
-        if (diagramRef.current) {
-          diagramRef.current.style.transform = `scale(${zoom})`
-        }
+        // Restore transforms in case of error
+        const diagramWrappers = diagramRef.current?.querySelectorAll('.diagram-wrapper') as NodeListOf<HTMLElement>
+        diagramWrappers?.forEach((wrapper) => {
+          const translateMatch = wrapper.style.transform.match(/translate\(([^)]+)\)/)
+          const translateValue = translateMatch?.[1] || '0px, 0px'
+          wrapper.style.transform = `translate(${translateValue}) scale(${zoom})`
+        })
       }
     }
   }
@@ -170,7 +189,7 @@ export function DiagramPreview() {
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium">Zoom:</span>
           <div className="flex-1">
-            <Slider value={[zoom]} min={0.3} max={3} step={0.1} onValueChange={handleZoomChange} className="w-full" />
+            <Slider value={[zoom]} min={0.5} max={2} step={0.214286} onValueChange={handleZoomChange} className="w-full" />
           </div>
           <span className="text-xs font-mono w-10 text-right bg-gray-100 px-1.5 py-0.5 rounded text-[10px]">
             {(zoom * 100).toFixed(0)}%
@@ -195,8 +214,6 @@ export function DiagramPreview() {
         <div
           ref={diagramRef}
           style={{
-            transform: `scale(${zoom})`,
-            transformOrigin: "0 0",
             width: "100%",
             minHeight: "100%",
             position: "relative"

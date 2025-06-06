@@ -5,6 +5,8 @@ import { Resizable } from 're-resizable';
 import type { DiagramMetadata } from '@/types';
 import { useDragElement } from '@/lib/hooks/use-drag-element';
 import { useResizeElement } from '@/lib/hooks/use-resize-element';
+import { useSelector } from 'react-redux';
+import type { RootState } from '@/lib/store/store';
 
 interface DiagramWrapperProps {
   diagram: DiagramMetadata;
@@ -17,6 +19,9 @@ export function DiagramWrapper({ diagram, index, onExport, code = '' }: DiagramW
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragDisabled, setDragDisabled] = useState(false);
   const dragDisableTimerRef = useRef<number | null>(null);
+  
+  // Get zoom from Redux state
+  const zoom = useSelector((state: RootState) => state.editor.zoom);
 
   // Cleanup function for the timer
   useEffect(() => {
@@ -103,7 +108,8 @@ export function DiagramWrapper({ diagram, index, onExport, code = '' }: DiagramW
       onMouseLeave={handleMouseUpWrapper}
       style={{
         position: 'relative',
-        transform: `translate(${position.x}px, ${position.y}px)`,
+        transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
+        transformOrigin: '0 0',
         willChange: isDragging ? 'transform' : 'auto',
         zIndex: isDragging ? 10 : 1,
         marginBottom: '1rem',
@@ -158,7 +164,14 @@ export function DiagramWrapper({ diagram, index, onExport, code = '' }: DiagramW
             transition: 'box-shadow 0.2s ease-out, padding 0.2s ease-out',
           }}
         >
-          {content}
+          <div
+            style={{
+              height: '100%',
+              width: '100%',
+            }}
+          >
+            {content}
+          </div>
         </div>
       </Resizable>
     </div>

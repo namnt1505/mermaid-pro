@@ -15,7 +15,6 @@ export function DiagramPreviewPanel({  }: DiagramPreviewPanelProps) {
   const diagrams = currentProject?.diagrams || [];
   const diagramStates = useSelector((state: RootState) => state.editor.diagramStates);
 
-  // Tính toán số lượng diagram hợp lệ
   const validDiagrams = Object.values(diagramStates).filter(state => state.isValid).length;
 
   return (
