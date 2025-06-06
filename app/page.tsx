@@ -30,7 +30,7 @@ export default function Home() {
   }, [])
 
   return (
-    <main className="container mx-auto p-2 min-h-screen">
+    <main className="w-full h-screen overflow-hidden">
       <ProjectWorkspace />
     </main>
   )

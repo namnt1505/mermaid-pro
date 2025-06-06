@@ -19,8 +19,7 @@ export function DiagramPreviewPanel({  }: DiagramPreviewPanelProps) {
   const validDiagrams = Object.values(diagramStates).filter(state => state.isValid).length;
 
   return (
-    <div className="h-full max-h-[calc(100vh-16px)] flex flex-col space-y-2 p-2 bg-card border rounded-md shadow-sm" 
-      style={{ maxHeight: "750px", minHeight: "750px" }}>
+    <div className="w-full h-full flex flex-col space-y-2 p-2 bg-card border rounded-md shadow-sm">
       <div className="flex justify-between items-center flex-shrink-0">
         <div className="flex items-center gap-2">
           <h2 className="text-sm font-semibold">Preview</h2>
@@ -29,11 +28,11 @@ export function DiagramPreviewPanel({  }: DiagramPreviewPanelProps) {
           </span>
         </div>
       </div>
-      <div className="flex-1 min-h-0 overflow-hidden">
+      <div className="flex-1 min-h-0 w-full overflow-hidden">
         {diagrams.length > 0 ? (
           <DiagramPreview />
         ) : (
-          <div className="flex items-center justify-center h-full text-muted-foreground border rounded-md bg-background">
+          <div className="flex items-center justify-center h-full w-full text-muted-foreground border rounded-md bg-background">
             <p className="text-xs">No diagrams to display</p>
           </div>
         )}

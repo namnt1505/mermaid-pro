@@ -14,6 +14,10 @@ export function ProjectWorkspace() {
   const [isProjectToolMinimized, setIsProjectToolMinimized] = useState(false)
   const [windowWidth, setWindowWidth] = useState(1200)
 
+  const toggleProjectTool = useCallback(() => {
+    setIsProjectToolMinimized((prev) => !prev)
+  }, [])
+
   useEffect(() => {
     if (typeof window === "undefined") return
     setWindowWidth(window.innerWidth)
@@ -22,13 +26,23 @@ export function ProjectWorkspace() {
       setWindowWidth(window.innerWidth)
     }
 
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
-  }, [])
+    // Keyboard shortcuts
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl/Cmd + B to toggle sidebar
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+        e.preventDefault()
+        toggleProjectTool()
+      }
+    }
 
-  const toggleProjectTool = useCallback(() => {
-    setIsProjectToolMinimized((prev) => !prev)
-  }, [])
+    window.addEventListener("resize", handleResize)
+    window.addEventListener("keydown", handleKeyDown)
+    
+    return () => {
+      window.removeEventListener("resize", handleResize)
+      window.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [toggleProjectTool])
 
   const handleDiagramAdded = useCallback(
     (diagramId: string) => {
@@ -37,18 +51,52 @@ export function ProjectWorkspace() {
     [selectDiagram],
   )
 
-  const { leftPanelPercentage, rightPanelPercentage } = useMemo(() => {
-    const leftSize = isProjectToolMinimized ? 50 : 280
-    const leftPercentage = (leftSize / windowWidth) * 100
-    return {
-      leftPanelPercentage: leftPercentage,
-      rightPanelPercentage: 100 - leftPercentage,
+  const { leftPanelSize, rightPanelSize } = useMemo(() => {
+    // Use percentage-based sizing for better responsiveness
+    if (isProjectToolMinimized) {
+      return {
+        leftPanelSize: 3,  // 3% when minimized (more space for content)
+        rightPanelSize: 97 // 97% for main content
+      }
+    }
+    
+    // Responsive sizing based on screen width
+    if (windowWidth < 768) {
+      // Mobile: smaller left panel
+      return {
+        leftPanelSize: 40,
+        rightPanelSize: 60
+      }
+    } else if (windowWidth < 1024) {
+      // Tablet: medium left panel
+      return {
+        leftPanelSize: 30,
+        rightPanelSize: 70
+      }
+    } else if (windowWidth < 1400) {
+      // Desktop: balanced
+      return {
+        leftPanelSize: 22,
+        rightPanelSize: 78
+      }
+    } else if (windowWidth < 1920) {
+      // Large desktop: more space for preview
+      return {
+        leftPanelSize: 18,
+        rightPanelSize: 82
+      }
+    } else {
+      // Ultra-wide: maximize preview space
+      return {
+        leftPanelSize: 15,
+        rightPanelSize: 85
+      }
     }
   }, [isProjectToolMinimized, windowWidth])
 
   if (!currentProject) {
     return (
-      <div className="flex h-screen flex-col">
+      <div className="w-full h-full flex flex-col">
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center space-y-4">
             <h2 className="text-2xl font-semibold text-gray-900">Welcome to Mermaid Pro</h2>
@@ -61,10 +109,17 @@ export function ProjectWorkspace() {
   }
 
   return (
-    <div className="flex h-screen flex-col">
-      <ProjectSelector />
-      <ResizablePanelGroup direction="horizontal" className="flex-1">
-        <ResizablePanel defaultSize={leftPanelPercentage} minSize={20}>
+    <div className="w-full h-full flex flex-col overflow-hidden">
+      <div className="flex-shrink-0 w-full py-2">
+        <ProjectSelector />
+      </div>
+      <ResizablePanelGroup direction="horizontal" className="flex-1 min-h-0 w-full">
+        <ResizablePanel 
+          defaultSize={leftPanelSize} 
+          minSize={isProjectToolMinimized ? 3 : 15}
+          maxSize={isProjectToolMinimized ? 8 : 40}
+          className="relative h-full"
+        >
           <WorkspacePanel
             isMinimized={isProjectToolMinimized}
             onToggleMinimize={toggleProjectTool}
@@ -74,8 +129,15 @@ export function ProjectWorkspace() {
             onAddDiagram={() => setIsAddDiagramOpen(true)}
           />
         </ResizablePanel>
-        <ResizableHandle />
-        <ResizablePanel defaultSize={rightPanelPercentage} minSize={30}>
+        <ResizableHandle 
+          withHandle 
+          className="w-2 bg-border hover:bg-accent transition-colors duration-200 h-full"
+        />
+        <ResizablePanel 
+          defaultSize={rightPanelSize} 
+          minSize={60}
+          className="relative h-full"
+        >
           <DiagramPreviewPanel />
         </ResizablePanel>
       </ResizablePanelGroup>
