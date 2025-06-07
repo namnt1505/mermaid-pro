@@ -58,8 +58,6 @@ export function DiagramWrapper({ diagram, index, onExport, code = '' }: DiagramW
     isDragging,
     position,
     handleMouseDown,
-    handleMouseMove,
-    handleMouseUp
   } = useDragElement({
     elementRef: containerRef,
     disabled: dragDisabled || isResizing,
